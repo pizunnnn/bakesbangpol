@@ -1,0 +1,36 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "serve-simpeg-asset",
+			"type": "shell",
+			"command": "C:\\Users\\Muhammad Fauzan nur\\.config\\herd\\bin\\php84\\php.exe",
+			"args": [
+				"-n",
+				"-d",
+				"extension_dir=C:\\Users\\Muhammad Fauzan nur\\.config\\herd\\bin\\php84\\ext",
+				"-d",
+				"extension=openssl",
+				"-d",
+				"extension=curl",
+				"-d",
+				"extension=zip",
+				"-d",
+				"extension=fileinfo",
+				"-d",
+				"extension=mbstring",
+				"-d",
+				"extension=pdo_sqlite",
+				"-d",
+				"extension=sqlite3",
+				"artisan",
+				"serve",
+				"--host=127.0.0.1",
+				"--port=8000"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}
