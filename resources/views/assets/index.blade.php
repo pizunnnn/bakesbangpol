@@ -34,10 +34,19 @@
                     <option value="Tersedia" {{ ($status ?? '') === 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
                     <option value="Dipinjam" {{ ($status ?? '') === 'Dipinjam' ? 'selected' : '' }}>Dipinjam</option>
                 </select>
+                <select name="bidang" class="form-select form-select-sm me-1 w-auto" aria-label="Filter bidang aset"
+                    onchange="this.form.submit()">
+                    <option value="">Semua Bidang</option>
+                    @foreach ($bidangList ?? [] as $b)
+                        <option value="{{ $b }}" {{ ($bidang ?? '') === $b ? 'selected' : '' }}>
+                            {{ $b }}
+                        </option>
+                    @endforeach
+                </select>
                 <button type="submit" class="btn btn-sm btn-light">
                     <i class="bi bi-search"></i>
                 </button>
-                @if (!empty($search) || !empty($status))
+                @if (!empty($search) || !empty($status) || !empty($bidang))
                     <a href="{{ route('assets.index') }}" class="btn btn-sm btn-outline-light ms-1"
                         title="Hapus filter & pencarian">
                         <i class="bi bi-x-lg"></i>
@@ -50,12 +59,14 @@
                 <thead class="table-light text-center">
                     <tr>
                         <th>No</th>
+                        <th>Foto</th>
                         <th>Kode Barang / Reg</th>
                         <th>Nama & Spesifikasi Barang</th>
                         <th>Perolehan</th>
                         <th>Nilai (Rp)</th>
                         <th>Unit</th>
                         <th>Kondisi</th>
+                        <th>Bidang</th>
                         <th>Status</th>
                         <th class="text-center">Aksi</th>
                     </tr>
@@ -64,6 +75,17 @@
                     @forelse ($assets as $index => $asset)
                         <tr>
                             <td class="text-center fw-bold">{{ $assets->firstItem() + $index }}</td>
+                            <td class="text-center">
+                                @if ($asset->photo)
+                                    <img src="{{ asset('storage/' . $asset->photo) }}"
+                                        alt="Foto {{ $asset->nama_barang }}" class="rounded asset-thumb"
+                                        data-photo="{{ asset('storage/' . $asset->photo) }}"
+                                        data-name="{{ $asset->nama_barang ?? $asset->asset_code }}"
+                                        style="width:60px;height:60px;object-fit:cover;cursor:zoom-in;">
+                                @else
+                                    <span class="text-muted"><i class="bi bi-image fs-4"></i></span>
+                                @endif
+                            </td>
                             <td>
                                 <span
                                     class="badge bg-secondary mb-1">{{ $asset->kode_barang ?? $asset->asset_code }}</span><br>
@@ -95,6 +117,13 @@
                                                 : 'bg-danger');
                                 @endphp
                                 <span class="badge {{ $badge_kondisi }}">{{ $keadaan }}</span>
+                            </td>
+                            <td class="text-center">
+                                @if ($asset->bidang)
+                                    <span class="badge bg-info text-dark">{{ $asset->bidang }}</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
                             </td>
                             <td class="text-center">
                                 @if (($asset->status ?? 'Tersedia') === 'Dipinjam')
@@ -131,7 +160,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-4">Belum ada data aset/pengadaan.</td>
+                            <td colspan="11" class="text-center text-muted py-4">Belum ada data aset/pengadaan.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -143,4 +172,120 @@
             </div>
         @endif
     </div>
+
+    <!-- Modal Zoom Foto -->
+    <div class="modal fade" id="photoZoomModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header d-flex justify-content-between align-items-center">
+                    <h6 class="modal-title" id="zoomModalTitle">Zoom Foto</h6>
+                    <div class="d-flex align-items-center gap-1">
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="zoomInBtn" title="Perbesar">
+                            <i class="bi bi-zoom-in"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomOutBtn"
+                            title="Perkecil">
+                            <i class="bi bi-zoom-out"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-dark" id="zoomResetBtn" title="Reset">
+                            <i class="bi bi-arrows-fullscreen"></i>
+                        </button>
+                        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal"
+                            aria-label="Tutup"></button>
+                    </div>
+                </div>
+                <div class="modal-body p-0" style="background:#000;overflow:hidden;height:70vh;">
+                    <div id="zoomContainer" style="width:100%;height:100%;overflow:hidden;cursor:grab;">
+                        <img id="zoomImage" src="" alt="Foto aset"
+                            style="width:100%;height:100%;object-fit:contain;transform-origin:center;transition:transform 0.1s ease;">
+                    </div>
+                </div>
+                <div class="modal-footer small text-muted">
+                    <span><i class="bi bi-mouse me-1"></i>Gulir untuk zoom, klik & geser untuk menggeser foto</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const modalEl = document.getElementById('photoZoomModal');
+                const img = document.getElementById('zoomImage');
+                const container = document.getElementById('zoomContainer');
+                const title = document.getElementById('zoomModalTitle');
+                let scale = 1;
+                let posX = 0;
+                let posY = 0;
+                let isDragging = false;
+                let startX = 0;
+                let startY = 0;
+
+                function applyTransform() {
+                    img.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+                }
+
+                function resetZoom() {
+                    scale = 1;
+                    posX = 0;
+                    posY = 0;
+                    applyTransform();
+                }
+
+                function zoomBy(factor) {
+                    scale = Math.min(5, Math.max(1, scale + factor));
+                    applyTransform();
+                }
+
+                // Klik thumbnail
+                document.querySelectorAll('.asset-thumb').forEach(function(thumb) {
+                    thumb.addEventListener('click', function() {
+                        img.src = thumb.dataset.photo;
+                        title.textContent = thumb.dataset.name || 'Zoom Foto';
+                        resetZoom();
+                        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                        modal.show();
+                    });
+                });
+
+                // Tombol zoom
+                document.getElementById('zoomInBtn').addEventListener('click', function() {
+                    zoomBy(0.5);
+                });
+                document.getElementById('zoomOutBtn').addEventListener('click', function() {
+                    zoomBy(-0.5);
+                });
+                document.getElementById('zoomResetBtn').addEventListener('click', resetZoom);
+
+                // Scroll untuk zoom
+                container.addEventListener('wheel', function(e) {
+                    e.preventDefault();
+                    zoomBy(e.deltaY < 0 ? 0.3 : -0.3);
+                }, {
+                    passive: false
+                });
+
+                // Drag untuk geser
+                container.addEventListener('mousedown', function(e) {
+                    isDragging = true;
+                    startX = e.clientX - posX;
+                    startY = e.clientY - posY;
+                    container.style.cursor = 'grabbing';
+                });
+                document.addEventListener('mousemove', function(e) {
+                    if (!isDragging) return;
+                    posX = e.clientX - startX;
+                    posY = e.clientY - startY;
+                    applyTransform();
+                });
+                document.addEventListener('mouseup', function() {
+                    isDragging = false;
+                    container.style.cursor = 'grab';
+                });
+
+                // Reset saat modal ditutup
+                modalEl.addEventListener('hidden.bs.modal', resetZoom);
+            });
+        </script>
+    @endpush
 @endsection

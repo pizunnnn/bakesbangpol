@@ -337,6 +337,8 @@ namespace App\Models {
   /**
    * App\Models\Asset
    *
+   * @property string|null $bidang
+   * @property int|null $current_employee_id
    * @property integer $jumlah_unit
    * @property integer|null $umur_ekonomis
    * @property string $keadaan
@@ -395,6 +397,8 @@ namespace App\Models {
    * @method static \Illuminate\Database\Eloquent\Builder<Asset>|Asset whereKeadaan($value)
    * @method static \Illuminate\Database\Eloquent\Builder<Asset>|Asset whereUmurEkonomis($value)
    * @method static \Illuminate\Database\Eloquent\Builder<Asset>|Asset whereJumlahUnit($value)
+   * @method static \Illuminate\Database\Eloquent\Builder<Asset>|Asset whereCurrentEmployeeId($value)
+   * @method static \Illuminate\Database\Eloquent\Builder<Asset>|Asset whereBidang($value)
    * @method static \Illuminate\Database\Eloquent\Builder<Asset>|Asset newModelQuery()
    * @method static \Illuminate\Database\Eloquent\Builder<Asset>|Asset newQuery()
    * @method static \Illuminate\Database\Eloquent\Builder<Asset>|Asset query()

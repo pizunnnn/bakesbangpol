@@ -100,8 +100,11 @@ $data['status'] = 'draft';
     ]);
   }
 
-  public function destroy(PppkReview $review): RedirectResponse
+public function destroy(PppkReview $review): RedirectResponse
   {
+    // Hapus seluruh kegiatan (detail) terkait periode ini terlebih dahulu.
+    $review->details()->delete();
+
     $review->delete();
 
     return redirect()->route('reviews.index')->with('success', 'Periode laporan berhasil dihapus.');

@@ -9,10 +9,20 @@
             <small class="text-muted">Badan Kesatuan Bangsa dan Politik Provinsi Jawa Barat</small>
         </div>
         @if ($selected)
-            <a href="{{ route('reviews.print', ['periode' => $selected->id]) }}" target="_blank"
-                class="btn btn-success fw-bold">
-                <i class="bi bi-printer me-1"></i>Preview & Cetak Laporan (PDF)
-            </a>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ route('reviews.print', ['periode' => $selected->id]) }}" target="_blank"
+                    class="btn btn-success fw-bold">
+                    <i class="bi bi-printer me-1"></i>Preview & Cetak Laporan (PDF)
+                </a>
+                <form action="{{ route('reviews.destroy', $selected) }}" method="POST" class="d-inline"
+                    onsubmit="return confirm('Yakin ingin menghapus periode {{ $selected->evaluation_period }} beserta seluruh kegiatannya?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger fw-bold">
+                        <i class="bi bi-trash me-1"></i>Hapus Periode
+                    </button>
+                </form>
+            </div>
         @endif
     </div>
 
@@ -35,16 +45,27 @@
                     @if ($periods->count())
                         <div class="list-group">
                             @foreach ($periods as $period)
-                                <a href="{{ route('reviews.index', ['periode' => $period->id]) }}"
+                                <div
                                     class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $selected && $selected->id === $period->id ? 'active' : '' }}">
-                                    <span>
-                                        <strong>{{ $period->nama }}</strong><br>
+                                    <a href="{{ route('reviews.index', ['periode' => $period->id]) }}"
+                                        class="text-decoration-none flex-grow-1 me-2 {{ $selected && $selected->id === $period->id ? 'text-white' : 'text-dark' }}">
+                                        <strong>{{ $period->nama }}</strong>
+                                        @if ($selected && $selected->id === $period->id)
+                                            <i class="bi bi-check-circle-fill ms-1"></i>
+                                        @endif
+                                        <br>
                                         <small>{{ $period->evaluation_period }}</small>
-                                    </span>
-                                    @if ($selected && $selected->id === $period->id)
-                                        <i class="bi bi-check-circle-fill"></i>
-                                    @endif
-                                </a>
+                                    </a>
+                                    <form action="{{ route('reviews.destroy', $period) }}" method="POST" class="d-inline"
+                                        onsubmit="return confirm('Yakin ingin menghapus periode {{ $period->evaluation_period }} beserta seluruh kegiatannya?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            title="Hapus periode {{ $period->evaluation_period }}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             @endforeach
                         </div>
                     @else

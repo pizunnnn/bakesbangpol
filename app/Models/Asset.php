@@ -24,9 +24,9 @@ class Asset extends Model
     'purchase_price',
 'condition',
     'status',
-    'current_employee_id',
+'current_employee_id',
     'location',
-    'photo',
+    'bidang',
     // BMD fields
     'kode_barang',
     'no_register',
@@ -37,8 +37,9 @@ class Asset extends Model
     'tahun_perolehan',
     'nilai_perolehan',
 'keadaan',
-    'umur_ekonomis',
+'umur_ekonomis',
     'jumlah_unit',
+    'photo',
   ];
 
   protected function casts(): array

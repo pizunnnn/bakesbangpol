@@ -29,8 +29,8 @@ class UpdateAssetRequest extends FormRequest
 'condition' => ['nullable', 'string', 'max:255'],
       'status' => ['nullable', 'string', 'max:255'],
       'current_employee_id' => ['nullable', 'integer', 'exists:employees,id'],
-      'location' => ['nullable', 'string', 'max:255'],
-      'photo' => ['nullable', 'string', 'max:255'],
+'location' => ['nullable', 'string', 'max:255'],
+      'bidang' => ['nullable', 'string', 'max:255'],
       // BMD fields
       'kode_barang' => ['required', 'string', 'max:255'],
       'no_register' => ['nullable', 'string', 'max:255'],
@@ -43,6 +43,7 @@ class UpdateAssetRequest extends FormRequest
       'keadaan' => ['nullable', 'string', 'max:255'],
 'umur_ekonomis' => ['nullable', 'integer', 'min:0'],
       'jumlah_unit' => ['nullable', 'integer', 'min:1'],
+      'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
     ];
   }
 }

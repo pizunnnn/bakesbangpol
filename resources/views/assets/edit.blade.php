@@ -18,9 +18,41 @@
             Edit Data Aset BMD
         </div>
         <div class="card-body">
-            <form action="{{ route('assets.update', $asset) }}" method="POST">
+            <form action="{{ route('assets.update', $asset) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Foto Aset</label>
+                    @if ($asset->photo)
+                        <div class="mb-2">
+                            <img src="{{ asset('storage/' . $asset->photo) }}" alt="Foto aset" class="img-thumbnail"
+                                style="max-height: 150px;">
+                        </div>
+                    @endif
+                    <input type="file" name="photo" id="photo"
+                        class="form-control @error('photo') is-invalid @enderror" accept="image/*">
+                    <div id="photo_preview" class="mt-2"></div>
+                    <div class="form-text">Kosongkan jika tidak ingin mengubah foto. Format: JPEG, PNG, JPG, GIF, atau WebP.
+                        Maksimal 2MB.</div>
+                    @error('photo')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Bidang / Lokasi Barang</label>
+                    <select name="bidang" class="form-select @error('bidang') is-invalid @enderror">
+                        <option value="">-- Pilih Bidang --</option>
+                        @foreach ($bidangList ?? [] as $b)
+                            <option value="{{ $b }}" {{ old('bidang', $asset->bidang) == $b ? 'selected' : '' }}>
+                                {{ $b }}</option>
+                        @endforeach
+                    </select>
+                    @error('bidang')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
                 <div class="mb-3">
                     <label class="form-label text-muted small">Kategori & Kode Barang (Permendagri)</label>
@@ -207,6 +239,25 @@
                 }
 
                 statusSelect.addEventListener('change', togglePeminjam);
+
+                const photoInput = document.getElementById('photo');
+                const photoPreview = document.getElementById('photo_preview');
+                if (photoInput && photoPreview) {
+                    photoInput.addEventListener('change', function() {
+                        photoPreview.innerHTML = '';
+                        const file = photoInput.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'img-thumbnail';
+                            img.style.maxHeight = '150px';
+                            photoPreview.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
             });
         </script>
     @endpush

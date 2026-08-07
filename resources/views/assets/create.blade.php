@@ -18,8 +18,33 @@
             Form Tambah Aset
         </div>
         <div class="card-body">
-            <form action="{{ route('assets.store') }}" method="POST">
+            <form action="{{ route('assets.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Foto Aset</label>
+                    <input type="file" name="photo" id="photo"
+                        class="form-control @error('photo') is-invalid @enderror" accept="image/*">
+                    <div id="photo_preview" class="mt-2"></div>
+                    <div class="form-text">Format: JPEG, PNG, JPG, GIF, atau WebP. Maksimal 2MB.</div>
+                    @error('photo')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Bidang / Lokasi Barang</label>
+                    <select name="bidang" class="form-select @error('bidang') is-invalid @enderror">
+                        <option value="">-- Pilih Bidang --</option>
+                        @foreach ($bidangList ?? [] as $b)
+                            <option value="{{ $b }}" {{ old('bidang') == $b ? 'selected' : '' }}>
+                                {{ $b }}</option>
+                        @endforeach
+                    </select>
+                    @error('bidang')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
                 <div class="mb-3">
                     <label class="form-label text-muted small">Kategori & Kode Barang (Permendagri)</label>
@@ -151,4 +176,29 @@
             </form>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const input = document.getElementById('photo');
+                const preview = document.getElementById('photo_preview');
+                if (input && preview) {
+                    input.addEventListener('change', function() {
+                        preview.innerHTML = '';
+                        const file = input.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'img-thumbnail';
+                            img.style.maxHeight = '150px';
+                            preview.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+            });
+        </script>
+    @endpush
 @endsection

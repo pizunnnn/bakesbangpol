@@ -207,4 +207,4 @@
 </body>
 
 </html>
-<?php /**PATH C:\laragon\www\bakesbangpol\resources\views/reviews/print.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\laragon\www\bakesbangpol\resources\views\reviews\print.blade.php ENDPATH**/ ?>

@@ -18,9 +18,69 @@
             Edit Data Aset BMD
         </div>
         <div class="card-body">
-            <form action="<?php echo e(route('assets.update', $asset)); ?>" method="POST">
+            <form action="<?php echo e(route('assets.update', $asset)); ?>" method="POST" enctype="multipart/form-data">
                 <?php echo csrf_field(); ?>
                 <?php echo method_field('PUT'); ?>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Foto Aset</label>
+                    <?php if($asset->photo): ?>
+                        <div class="mb-2">
+                            <img src="<?php echo e(asset('storage/' . $asset->photo)); ?>" alt="Foto aset" class="img-thumbnail"
+                                style="max-height: 150px;">
+                        </div>
+                    <?php endif; ?>
+                    <input type="file" name="photo" id="photo"
+                        class="form-control <?php $__errorArgs = ['photo'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" accept="image/*">
+                    <div id="photo_preview" class="mt-2"></div>
+                    <div class="form-text">Kosongkan jika tidak ingin mengubah foto. Format: JPEG, PNG, JPG, GIF, atau WebP.
+                        Maksimal 2MB.</div>
+                    <?php $__errorArgs = ['photo'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Bidang / Lokasi Barang</label>
+                    <select name="bidang" class="form-select <?php $__errorArgs = ['bidang'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>">
+                        <option value="">-- Pilih Bidang --</option>
+                        <?php $__currentLoopData = $bidangList ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $b): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($b); ?>" <?php echo e(old('bidang', $asset->bidang) == $b ? 'selected' : ''); ?>>
+                                <?php echo e($b); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </select>
+                    <?php $__errorArgs = ['bidang'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                </div>
 
                 <div class="mb-3">
                     <label class="form-label text-muted small">Kategori & Kode Barang (Permendagri)</label>
@@ -391,6 +451,25 @@ unset($__errorArgs, $__bag); ?>
                 }
 
                 statusSelect.addEventListener('change', togglePeminjam);
+
+                const photoInput = document.getElementById('photo');
+                const photoPreview = document.getElementById('photo_preview');
+                if (photoInput && photoPreview) {
+                    photoInput.addEventListener('change', function() {
+                        photoPreview.innerHTML = '';
+                        const file = photoInput.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'img-thumbnail';
+                            img.style.maxHeight = '150px';
+                            photoPreview.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
             });
         </script>
     <?php $__env->stopPush(); ?>
