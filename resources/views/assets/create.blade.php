@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Form Usulan Pengadaan Aset Baru')
+@section('title', 'Tambah Aset')
 
 @section('content')
     <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <div>
-            <h1 class="h3 mb-1">Form Usulan Pengadaan Aset Baru</h1>
+            <h1 class="h3 mb-1">Tambah Aset</h1>
             <p class="text-muted mb-0">Sistem Pengadaan & Inventaris Barang Milik Daerah (BMD)</p>
         </div>
         <a href="{{ route('assets.index') }}" class="btn btn-outline-secondary">
@@ -15,7 +15,7 @@
 
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-header bg-primary text-white fw-bold rounded-4 rounded-bottom-0">
-            Form Usulan Pengadaan Aset Baru
+            Form Tambah Aset
         </div>
         <div class="card-body">
             <form action="{{ route('assets.store') }}" method="POST">
@@ -146,7 +146,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100 fw-bold">
-                    <i class="bi bi-plus-lg me-1"></i>Ajukan Pengadaan
+                    <i class="bi bi-plus-lg me-1"></i>Simpan Aset
                 </button>
             </form>
         </div>

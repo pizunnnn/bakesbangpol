@@ -22,8 +22,9 @@ class Asset extends Model
     'serial_number',
     'purchase_date',
     'purchase_price',
-    'condition',
+'condition',
     'status',
+    'current_employee_id',
     'location',
     'photo',
     // BMD fields
@@ -52,9 +53,14 @@ class Asset extends Model
     ];
   }
 
-  public function categoryRelation(): BelongsTo
+public function categoryRelation(): BelongsTo
   {
     return $this->belongsTo(AssetCategory::class, 'asset_category_id');
+  }
+
+  public function currentEmployee(): BelongsTo
+  {
+    return $this->belongsTo(Employee::class, 'current_employee_id');
   }
 
   public function assignments(): HasMany

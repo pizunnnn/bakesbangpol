@@ -8,7 +8,7 @@
             <h1 class="h3 mb-1">Edit Data Pegawai</h1>
             <p class="text-muted mb-0">{{ $employee->full_name }}</p>
         </div>
-        <a href="{{ route('employees.index') }}" class="btn btn-outline-secondary">
+        <a href="{{ route('employees.index') }}" class="btn btn-outline-secondary px-3 py-2">
             <i class="bi bi-arrow-left me-1"></i>Kembali
         </a>
     </div>
@@ -188,11 +188,13 @@
                     @enderror
                 </div>
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-warning">
+                <div class="d-flex gap-2 pt-2 border-top mt-4">
+                    <button type="submit" class="btn btn-warning px-4 py-2">
                         <i class="bi bi-check-lg me-1"></i>Simpan Perubahan
                     </button>
-                    <a href="{{ route('employees.index') }}" class="btn btn-outline-secondary">Batal</a>
+                    <a href="{{ route('employees.index') }}" class="btn btn-outline-secondary px-4 py-2">
+                        <i class="bi bi-x-lg me-1"></i>Batal
+                    </a>
                 </div>
             </form>
         </div>

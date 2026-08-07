@@ -24,8 +24,9 @@ class StoreAssetRequest extends FormRequest
       'serial_number' => ['nullable', 'string', 'max:255', 'unique:assets,serial_number'],
       'purchase_date' => ['nullable', 'date'],
       'purchase_price' => ['nullable', 'numeric', 'min:0'],
-      'condition' => ['nullable', 'string', 'max:255'],
+'condition' => ['nullable', 'string', 'max:255'],
       'status' => ['nullable', 'string', 'max:255'],
+      'current_employee_id' => ['nullable', 'integer', 'exists:employees,id'],
       'location' => ['nullable', 'string', 'max:255'],
       'photo' => ['nullable', 'string', 'max:255'],
       // BMD fields

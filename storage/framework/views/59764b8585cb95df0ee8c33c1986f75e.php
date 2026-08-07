@@ -1,36 +1,37 @@
-@extends('layouts.app')
 
-@section('title', 'Data Pegawai')
 
-@section('content')
+<?php $__env->startSection('title', 'Data Pegawai'); ?>
+
+<?php $__env->startSection('content'); ?>
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <h1 class="h4 mb-0">Data Pegawai</h1>
                 <div class="d-flex gap-2 flex-wrap">
-                    <form action="{{ route('employees.index') }}" method="GET"
+                    <form action="<?php echo e(route('employees.index')); ?>" method="GET"
                         class="d-flex flex-wrap align-items-center gap-2" role="search">
-                        <input type="text" name="search" value="{{ $search ?? '' }}" class="form-control form-control-sm"
+                        <input type="text" name="search" value="<?php echo e($search ?? ''); ?>" class="form-control form-control-sm"
                             style="min-width: 210px;" placeholder="Cari nama, NIP, unit, jabatan..."
                             aria-label="Cari pegawai">
 
                         <select name="status_pegawai" class="form-select form-select-sm w-auto"
                             aria-label="Filter status pegawai" onchange="this.form.submit()">
                             <option value="">Semua Status Pegawai</option>
-                            @foreach (['Pegawai Tetap', 'P3K Paruh Waktu', 'Outsourcing'] as $s)
-                                <option value="{{ $s }}" {{ ($statusPegawai ?? '') === $s ? 'selected' : '' }}>
-                                    {{ $s }}
+                            <?php $__currentLoopData = ['Pegawai Tetap', 'P3K Paruh Waktu', 'Outsourcing']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $s): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($s); ?>" <?php echo e(($statusPegawai ?? '') === $s ? 'selected' : ''); ?>>
+                                    <?php echo e($s); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
 
                         <select name="status_kepegawaian" class="form-select form-select-sm w-auto"
                             aria-label="Filter status kepegawaian" onchange="this.form.submit()">
                             <option value="">Semua Status Keaktifan</option>
-                            <option value="active" {{ ($statusKepegawaian ?? '') === 'active' ? 'selected' : '' }}>
+                            <option value="active" <?php echo e(($statusKepegawaian ?? '') === 'active' ? 'selected' : ''); ?>>
                                 Aktif
                             </option>
-                            <option value="inactive" {{ ($statusKepegawaian ?? '') === 'inactive' ? 'selected' : '' }}>
+                            <option value="inactive" <?php echo e(($statusKepegawaian ?? '') === 'inactive' ? 'selected' : ''); ?>>
                                 Tidak Aktif
                             </option>
                         </select>
@@ -38,14 +39,14 @@
                         <button type="submit" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-search"></i>
                         </button>
-                        @if (!empty($search) || !empty($statusPegawai) || !empty($statusKepegawaian))
-                            <a href="{{ route('employees.index') }}" class="btn btn-sm btn-outline-secondary"
+                        <?php if(!empty($search) || !empty($statusPegawai) || !empty($statusKepegawaian)): ?>
+                            <a href="<?php echo e(route('employees.index')); ?>" class="btn btn-sm btn-outline-secondary"
                                 title="Hapus filter & pencarian">
                                 <i class="bi bi-x-lg"></i>
                             </a>
-                        @endif
+                        <?php endif; ?>
                     </form>
-                    <a href="{{ route('employees.create') }}"
+                    <a href="<?php echo e(route('employees.create')); ?>"
                         class="btn btn-sm btn-primary d-inline-flex align-items-center justify-content-center">
                         <i class="bi bi-plus-lg me-1"></i>Tambah Pegawai
                     </a>
@@ -65,50 +66,53 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($employees as $employee)
+                        <?php $__empty_1 = true; $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                             <tr>
-                                <td>{{ $employee->full_name }}</td>
-                                <td>{{ $employee->employee_number ?: '-' }}</td>
-                                <td>{{ $employee->unit_kerja ?: $employee->department->name ?? '-' }}</td>
-                                <td>{{ $employee->position->name ?? '-' }}</td>
+                                <td><?php echo e($employee->full_name); ?></td>
+                                <td><?php echo e($employee->employee_number ?: '-'); ?></td>
+                                <td><?php echo e($employee->unit_kerja ?: $employee->department->name ?? '-'); ?></td>
+                                <td><?php echo e($employee->position->name ?? '-'); ?></td>
                                 <td>
-                                    @if ($employee->status_pegawai)
-                                        <span class="badge bg-primary">{{ $employee->status_pegawai }}</span>
-                                    @else
+                                    <?php if($employee->status_pegawai): ?>
+                                        <span class="badge bg-primary"><?php echo e($employee->status_pegawai); ?></span>
+                                    <?php else: ?>
                                         -
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
                                 <td>
-                                    @if ($employee->employment_status == 'active')
+                                    <?php if($employee->employment_status == 'active'): ?>
                                         <span class="badge bg-success">Aktif</span>
-                                    @else
+                                    <?php else: ?>
                                         <span class="badge bg-danger">Tidak Aktif</span>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route('employees.edit', $employee) }}" class="btn btn-sm btn-warning"
+                                    <a href="<?php echo e(route('employees.edit', $employee)); ?>" class="btn btn-sm btn-warning"
                                         title="Edit">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <form action="{{ route('employees.destroy', $employee) }}" method="POST"
+                                    <form action="<?php echo e(route('employees.destroy', $employee)); ?>" method="POST"
                                         class="d-inline" onsubmit="return confirm('Yakin ingin menghapus pegawai ini?')">
-                                        @csrf
-                                        @method('DELETE')
+                                        <?php echo csrf_field(); ?>
+                                        <?php echo method_field('DELETE'); ?>
                                         <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
                                 </td>
                             </tr>
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                             <tr>
                                 <td colspan="7" class="text-center text-muted">Belum ada data pegawai.</td>
                             </tr>
-                        @endforelse
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
-            {{ $employees->links() }}
+            <?php echo e($employees->links()); ?>
+
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\bakesbangpol\resources\views/employees/index.blade.php ENDPATH**/ ?>

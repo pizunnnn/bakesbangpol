@@ -15,11 +15,35 @@ use Illuminate\Http\RedirectResponse;
 
 class EmployeeController extends Controller
 {
-  public function index(): View
+public function index(): View
   {
-    $employees = Employee::with(['department', 'position', 'user'])->latest()->paginate(10);
+    $search = request('search');
+    $statusPegawai = request('status_pegawai');
+    $statusKepegawaian = request('status_kepegawaian');
 
-    return view('employees.index', compact('employees'));
+    $employees = Employee::with(['department', 'position', 'user'])
+      ->when($search, function ($query) use ($search) {
+        $query->where(function ($q) use ($search) {
+          $q->where('full_name', 'like', "%{$search}%")
+            ->orWhere('employee_number', 'like', "%{$search}%")
+            ->orWhere('unit_kerja', 'like', "%{$search}%")
+            ->orWhere('status_pegawai', 'like', "%{$search}%")
+            ->orWhereHas('position', function ($p) use ($search) {
+              $p->where('name', 'like', "%{$search}%");
+            });
+        });
+      })
+      ->when($statusPegawai, function ($query) use ($statusPegawai) {
+        $query->where('status_pegawai', $statusPegawai);
+      })
+      ->when($statusKepegawaian, function ($query) use ($statusKepegawaian) {
+        $query->where('employment_status', $statusKepegawaian);
+      })
+      ->latest()
+      ->paginate(10)
+      ->withQueryString();
+
+    return view('employees.index', compact('employees', 'search', 'statusPegawai', 'statusKepegawaian'));
   }
 
 public function create(): View

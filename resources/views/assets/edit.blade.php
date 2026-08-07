@@ -149,14 +149,35 @@
 
                 <div class="mb-3">
                     <label class="form-label text-muted small">Status</label>
-                    <select name="status" class="form-select @error('status') is-invalid @enderror">
-                        <option value="Menunggu Approval"
-                            {{ old('status', $asset->status) == 'Menunggu Approval' ? 'selected' : '' }}>Menunggu Approval
+                    <select name="status" id="asset_status" class="form-select @error('status') is-invalid @enderror">
+                        <option value="Tersedia" {{ old('status', $asset->status) == 'Tersedia' ? 'selected' : '' }}>
+                            Tersedia
                         </option>
-                        <option value="Disetujui" {{ old('status', $asset->status) == 'Disetujui' ? 'selected' : '' }}>
-                            Disetujui</option>
+                        <option value="Dipinjam" {{ old('status', $asset->status) == 'Dipinjam' ? 'selected' : '' }}>
+                            Dipinjam</option>
                     </select>
                     @error('status')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3" id="peminjam_field"
+                    style="{{ ($asset->status ?? '') === 'Dipinjam' ? '' : 'display:none;' }}">
+                    <label class="form-label text-muted small">Dipinjam Oleh</label>
+                    <select name="current_employee_id"
+                        class="form-select @error('current_employee_id') is-invalid @enderror">
+                        <option value="">-- Pilih Pegawai --</option>
+                        @foreach ($employees as $employee)
+                            <option value="{{ $employee->id }}"
+                                {{ old('current_employee_id', $asset->current_employee_id) == $employee->id ? 'selected' : '' }}>
+                                {{ $employee->full_name }}
+                                @if ($employee->unit_kerja && $employee->unit_kerja !== '-')
+                                    - {{ $employee->unit_kerja }}
+                                @endif
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('current_employee_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -170,4 +191,23 @@
             </form>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const statusSelect = document.getElementById('asset_status');
+                const peminjamField = document.getElementById('peminjam_field');
+
+                function togglePeminjam() {
+                    if (statusSelect.value === 'Dipinjam') {
+                        peminjamField.style.display = 'block';
+                    } else {
+                        peminjamField.style.display = 'none';
+                    }
+                }
+
+                statusSelect.addEventListener('change', togglePeminjam);
+            });
+        </script>
+    @endpush
 @endsection

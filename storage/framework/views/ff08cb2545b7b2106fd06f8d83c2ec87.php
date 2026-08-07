@@ -1,9 +1,9 @@
-@extends('layouts.app')
 
-@section('title', 'Dashboard | SIMPEG-ASSET')
 
-@section('content')
-    {{-- Hero Banner --}}
+<?php $__env->startSection('title', 'Dashboard | SIMPEG-ASSET'); ?>
+
+<?php $__env->startSection('content'); ?>
+    
     <div class="hero-banner rounded-4 p-4 p-md-5 mb-4 position-relative overflow-hidden">
         <div class="position-relative z-1">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
@@ -12,17 +12,18 @@
                         <i class="bi bi-stars me-1"></i>Selamat Datang
                     </span>
                     <h1 class="text-white fw-bold mb-1" style="font-size: 1.75rem;">
-                        {{ auth()->user()->name ?? 'Pengguna' }} 👋
+                        <?php echo e(auth()->user()->name ?? 'Pengguna'); ?> 👋
                     </h1>
                     <p class="text-white-50 mb-0">
-                        Berikut ringkasan data SIMPEG-ASSET pada {{ now()->translatedFormat('l, d F Y') }}
+                        Berikut ringkasan data SIMPEG-ASSET pada <?php echo e(now()->translatedFormat('l, d F Y')); ?>
+
                     </p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('employees.create') }}" class="btn btn-light btn-sm fw-semibold">
+                    <a href="<?php echo e(route('employees.create')); ?>" class="btn btn-light btn-sm fw-semibold">
                         <i class="bi bi-person-plus me-1"></i>Tambah Pegawai
                     </a>
-                    <a href="{{ route('assets.create') }}" class="btn btn-outline-light btn-sm fw-semibold">
+                    <a href="<?php echo e(route('assets.create')); ?>" class="btn btn-outline-light btn-sm fw-semibold">
                         <i class="bi bi-plus-lg me-1"></i>Tambah Aset
                     </a>
                 </div>
@@ -30,9 +31,9 @@
         </div>
     </div>
 
-    {{-- Statistic Cards --}}
+    
     <div class="row g-3 mb-4">
-        @php
+        <?php
             $cards = [
                 [
                     'label' => 'Total Pegawai',
@@ -75,26 +76,26 @@
                     'gradient' => 'linear-gradient(135deg, #64748b, #94a3b8)',
                 ],
             ];
-        @endphp
-        @foreach ($cards as $card)
+        ?>
+        <?php $__currentLoopData = $cards; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $card): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="col-12 col-sm-6 col-xl">
-                <a href="{{ route($card['route']) }}" class="text-decoration-none">
+                <a href="<?php echo e(route($card['route'])); ?>" class="text-decoration-none">
                     <div class="stat-card rounded-4 p-3 h-100 d-flex align-items-center gap-3 cursor-pointer"
-                        style="background: {{ $card['gradient'] }};">
+                        style="background: <?php echo e($card['gradient']); ?>;">
                         <div class="stat-icon rounded-3 d-flex align-items-center justify-content-center">
-                            <i class="bi bi-{{ $card['icon'] }} fs-3 text-white"></i>
+                            <i class="bi bi-<?php echo e($card['icon']); ?> fs-3 text-white"></i>
                         </div>
                         <div>
-                            <div class="stat-value fs-4 fw-bold text-white">{{ $card['value'] }}</div>
-                            <div class="stat-label small text-white-50">{{ $card['label'] }}</div>
+                            <div class="stat-value fs-4 fw-bold text-white"><?php echo e($card['value']); ?></div>
+                            <div class="stat-label small text-white-50"><?php echo e($card['label']); ?></div>
                         </div>
                     </div>
                 </a>
             </div>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </div>
 
-    {{-- Charts Row --}}
+    
     <div class="row g-3 mb-4">
         <div class="col-12 col-xl-7">
             <div class="card shadow-sm border-0 rounded-4 h-100">
@@ -123,13 +124,13 @@
         </div>
     </div>
 
-    {{-- Recent Tables --}}
+    
     <div class="row g-3">
         <div class="col-12 col-xl-6">
             <div class="card shadow-sm border-0 rounded-4 h-100">
                 <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center pt-3">
                     <h2 class="h6 mb-0 fw-bold"><i class="bi bi-person-plus me-2 text-primary"></i>Pegawai Terbaru</h2>
-                    <a href="{{ route('employees.index') }}" class="small text-decoration-none fw-semibold">
+                    <a href="<?php echo e(route('employees.index')); ?>" class="small text-decoration-none fw-semibold">
                         Lihat semua <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
@@ -145,32 +146,33 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($recentEmployees as $employee)
+                                <?php $__empty_1 = true; $__currentLoopData = $recentEmployees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                     <tr>
                                         <td class="ps-4">
                                             <div class="d-flex align-items-center gap-2">
                                                 <div class="avatar rounded-circle d-flex align-items-center justify-content-center
                                                     text-white fw-bold text-uppercase"
                                                     style="background: linear-gradient(135deg, #4e7cff, #6ea8ff);">
-                                                    {{ substr($employee->full_name ?? '?', 0, 1) }}
+                                                    <?php echo e(substr($employee->full_name ?? '?', 0, 1)); ?>
+
                                                 </div>
-                                                <span class="fw-medium">{{ $employee->full_name }}</span>
+                                                <span class="fw-medium"><?php echo e($employee->full_name); ?></span>
                                             </div>
                                         </td>
-                                        <td class="text-muted">{{ $employee->employee_number ?? '-' }}</td>
-                                        <td>{{ $employee->department?->name ?? '-' }}</td>
+                                        <td class="text-muted"><?php echo e($employee->employee_number ?? '-'); ?></td>
+                                        <td><?php echo e($employee->department?->name ?? '-'); ?></td>
                                         <td class="text-end pe-4">
                                             <span
-                                                class="badge rounded-pill text-bg-light border">{{ $employee->position?->name ?? '-' }}</span>
+                                                class="badge rounded-pill text-bg-light border"><?php echo e($employee->position?->name ?? '-'); ?></span>
                                         </td>
                                     </tr>
-                                @empty
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                     <tr>
                                         <td colspan="4" class="text-center text-muted py-4">
                                             <i class="bi bi-inbox d-block fs-3 mb-2"></i>Belum ada data pegawai.
                                         </td>
                                     </tr>
-                                @endforelse
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -181,7 +183,7 @@
             <div class="card shadow-sm border-0 rounded-4 h-100">
                 <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center pt-3">
                     <h2 class="h6 mb-0 fw-bold"><i class="bi bi-box-seam me-2 text-success"></i>Aset Terbaru</h2>
-                    <a href="{{ route('assets.index') }}" class="small text-decoration-none fw-semibold">
+                    <a href="<?php echo e(route('assets.index')); ?>" class="small text-decoration-none fw-semibold">
                         Lihat semua <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
@@ -197,30 +199,32 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($recentAssets as $asset)
+                                <?php $__empty_1 = true; $__currentLoopData = $recentAssets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $asset): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                     <tr>
-                                        <td class="ps-4 fw-medium">{{ $asset->nama_barang ?? ($asset->category ?? '-') }}
+                                        <td class="ps-4 fw-medium"><?php echo e($asset->nama_barang ?? ($asset->category ?? '-')); ?>
+
                                         </td>
-                                        <td class="text-muted">{{ $asset->asset_code ?? '-' }}</td>
-                                        <td>{{ $asset->jumlah_unit ?? 1 }}</td>
+                                        <td class="text-muted"><?php echo e($asset->asset_code ?? '-'); ?></td>
+                                        <td><?php echo e($asset->jumlah_unit ?? 1); ?></td>
                                         <td class="text-end pe-4">
-                                            @php
+                                            <?php
                                                 $statusClass = $asset->status === 'Dipinjam' ? 'danger' : 'success';
-                                            @endphp
+                                            ?>
                                             <span
-                                                class="badge rounded-pill bg-{{ $statusClass }}-subtle text-{{ $statusClass }}">
+                                                class="badge rounded-pill bg-<?php echo e($statusClass); ?>-subtle text-<?php echo e($statusClass); ?>">
                                                 <i class="bi bi-circle-fill me-1"
-                                                    style="font-size: .5rem;"></i>{{ $asset->status ?? 'Tersedia' }}
+                                                    style="font-size: .5rem;"></i><?php echo e($asset->status ?? 'Tersedia'); ?>
+
                                             </span>
                                         </td>
                                     </tr>
-                                @empty
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                     <tr>
                                         <td colspan="4" class="text-center text-muted py-4">
                                             <i class="bi bi-inbox d-block fs-3 mb-2"></i>Belum ada data aset.
                                         </td>
                                     </tr>
-                                @endforelse
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -228,9 +232,9 @@
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
     <style>
         .hero-banner {
             background: linear-gradient(135deg, #2563eb 0%, #4e7cff 50%, #7c9cff 100%);
@@ -289,15 +293,15 @@
             cursor: pointer;
         }
     </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
     <script>
         // --- Pegawai per Departemen - Bar Chart Lively ---
         const empCanvas = document.getElementById('employeesByDepartmentChart');
         const empCtx = empCanvas.getContext('2d');
-        const empCounts = {!! json_encode($employeesByDepartment->pluck('employees_count')) !!};
-        const empLabels = {!! json_encode($employeesByDepartment->pluck('name')) !!};
+        const empCounts = <?php echo json_encode($employeesByDepartment->pluck('employees_count')); ?>;
+        const empLabels = <?php echo json_encode($employeesByDepartment->pluck('name')); ?>;
 
         // Vertical gradient for each bar
         const barColors = ['#4e7cff', '#06b6d4', '#22c55e', '#f59e0b', '#a855f7', '#ef4444', '#64748b'];
@@ -377,9 +381,9 @@
         new Chart(document.getElementById('assetsByCategoryChart'), {
             type: 'doughnut',
             data: {
-                labels: {!! json_encode($assetsByCategory->pluck('name')) !!},
+                labels: <?php echo json_encode($assetsByCategory->pluck('name')); ?>,
                 datasets: [{
-                    data: {!! json_encode($assetsByCategory->pluck('assets_count')) !!},
+                    data: <?php echo json_encode($assetsByCategory->pluck('assets_count')); ?>,
                     backgroundColor: ['#4e7cff', '#22c55e', '#06b6d4', '#f59e0b', '#ef4444', '#64748b'],
                     borderWidth: 3,
                     borderColor: '#ffffff',
@@ -407,4 +411,6 @@
             }
         });
     </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\bakesbangpol\resources\views/dashboard/index.blade.php ENDPATH**/ ?>
