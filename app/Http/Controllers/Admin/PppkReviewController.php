@@ -50,7 +50,7 @@ class PppkReviewController extends Controller
       'pptk_nip' => ['required', 'string', 'max:255'],
     ]);
 
-$data['status'] = 'draft';
+    $data['status'] = 'draft';
     $data['evaluation_period'] = $data['periode_bulan'] . ' ' . $data['periode_tahun'];
     $data['year'] = $data['periode_tahun'];
 
@@ -95,12 +95,20 @@ $data['status'] = 'draft';
       ->where('id', (int) $request->query('periode'))
       ->firstOrFail();
 
+    // Konversi logo ke base64 untuk embedded image di PDF
+    $logoPath = public_path('images/logo-bakesbangpol.png');
+    $logoBase64 = '';
+    if (file_exists($logoPath)) {
+      $logoBase64 = base64_encode(file_get_contents($logoPath));
+    }
+
     return view('reviews.print', [
       'review' => $review,
+      'logoBase64' => $logoBase64,
     ]);
   }
 
-public function destroy(PppkReview $review): RedirectResponse
+  public function destroy(PppkReview $review): RedirectResponse
   {
     // Hapus seluruh kegiatan (detail) terkait periode ini terlebih dahulu.
     $review->details()->delete();

@@ -102,7 +102,7 @@
             style="padding: 8px 15px; font-size: 14px; cursor: pointer; background: #0d6efd; color: white; border: none; border-radius: 4px;">
             🖨️ Cetak / Save PDF
         </button>
-        <button onclick="window.location.href='{{ route('reviews.index', ['periode' => $review->id]) }}'"
+        <button onclick="window.location.href='<?php echo e(route('reviews.index', ['periode' => $review->id])); ?>'"
             style="padding: 8px 15px; font-size: 14px; cursor: pointer;">
             ⬅️ Kembali
         </button>
@@ -112,11 +112,11 @@
     <table class="header-table">
         <tr>
             <td style="width: 15%; text-align: center;">
-                @if ($logoBase64)
-                    <img src="data:image/png;base64,{{ $logoBase64 }}" class="logo" alt="Logo Bakesbangpol">
-                @else
-                    <img src="{{ asset('images/logo-bakesbangpol.jpeg') }}" class="logo" alt="Logo Bakesbangpol">
-                @endif
+                <?php if($logoBase64): ?>
+                    <img src="data:image/png;base64,<?php echo e($logoBase64); ?>" class="logo" alt="Logo Bakesbangpol">
+                <?php else: ?>
+                    <img src="<?php echo e(asset('images/logo-bakesbangpol.jpeg')); ?>" class="logo" alt="Logo Bakesbangpol">
+                <?php endif; ?>
             </td>
             <td class="kop-title">
                 <h4>PEMERINTAH PROVINSI JAWA BARAT</h4>
@@ -135,15 +135,15 @@
         <tr>
             <td style="width: 15%;"><strong>Nama</strong></td>
             <td style="width: 2%;">:</td>
-            <td style="width: 43%;">{{ $review->nama }}</td>
+            <td style="width: 43%;"><?php echo e($review->nama); ?></td>
             <td style="width: 12%;"><strong>Periode</strong></td>
             <td style="width: 2%;">:</td>
-            <td style="width: 26%;">{{ $review->evaluation_period }}</td>
+            <td style="width: 26%;"><?php echo e($review->evaluation_period); ?></td>
         </tr>
         <tr>
             <td><strong>Jabatan</strong></td>
             <td>:</td>
-            <td colspan="4">{{ $review->jabatan }}</td>
+            <td colspan="4"><?php echo e($review->jabatan); ?></td>
         </tr>
     </table>
 
@@ -158,8 +158,8 @@
             </tr>
         </thead>
         <tbody>
-            @forelse ($review->details as $idx => $row)
-                @php
+            <?php $__empty_1 = true; $__currentLoopData = $review->details; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $idx => $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                <?php
                     $hari = \Carbon\Carbon::parse($row->kegiatan_date)->format('l');
                     $daftar_hari = [
                         'Sunday' => 'Minggu',
@@ -172,18 +172,18 @@
                     ];
                     $tgl_indo =
                         $daftar_hari[$hari] . ', ' . \Carbon\Carbon::parse($row->kegiatan_date)->format('d-m-Y');
-                @endphp
+                ?>
                 <tr>
-                    <td style="text-align: center;">{{ $idx + 1 }}</td>
-                    <td>{{ $tgl_indo }}</td>
-                    <td style="text-align: center;">{{ $row->kegiatan_time }}</td>
-                    <td>{{ nl2br(e($row->uraian)) }}</td>
+                    <td style="text-align: center;"><?php echo e($idx + 1); ?></td>
+                    <td><?php echo e($tgl_indo); ?></td>
+                    <td style="text-align: center;"><?php echo e($row->kegiatan_time); ?></td>
+                    <td><?php echo e(nl2br(e($row->uraian))); ?></td>
                 </tr>
-            @empty
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <tr>
                     <td colspan="4" style="text-align: center;">Belum ada kegiatan.</td>
                 </tr>
-            @endforelse
+            <?php endif; ?>
         </tbody>
     </table>
 
@@ -194,17 +194,20 @@
         <tr>
             <td>
                 Pembuat Laporan<br><br><br><br><br>
-                <strong><u>{{ $review->nama }}</u></strong><br>
-                NIPKKK. {{ $review->nipkkk }}
+                <strong><u><?php echo e($review->nama); ?></u></strong><br>
+                NIPKKK. <?php echo e($review->nipkkk); ?>
+
             </td>
             <td>
                 Mengetahui,<br>
                 Pejabat Pelaksana Teknis Kegiatan<br><br><br><br>
-                <strong><u>{{ $review->pptk_nama }}</u></strong><br>
-                NIP. {{ $review->pptk_nip }}
+                <strong><u><?php echo e($review->pptk_nama); ?></u></strong><br>
+                NIP. <?php echo e($review->pptk_nip); ?>
+
             </td>
         </tr>
     </table>
 </body>
 
 </html>
+<?php /**PATH D:\BakesBangPol\KesbangPol\resources\views/reviews/print.blade.php ENDPATH**/ ?>
