@@ -70,9 +70,13 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label text-muted small">Tanggal Lahir</label>
-                        <input type="date" name="birth_date"
-                            class="form-control @error('birth_date') is-invalid @enderror"
-                            value="{{ old('birth_date', $employee->birth_date ? $employee->birth_date->format('Y-m-d') : '') }}">
+                        <div class="input-group">
+                            <input type="text" name="birth_date" id="birth_date"
+                                class="form-control flatpickr @error('birth_date') is-invalid @enderror"
+                                value="{{ old('birth_date', $employee->birth_date ? $employee->birth_date->format('Y-m-d') : '') }}"
+                                placeholder="DD/MM/YYYY">
+                            <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                        </div>
                         @error('birth_date')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -181,8 +185,13 @@
 
                 <div class="mb-3">
                     <label class="form-label text-muted small">Tanggal Bergabung</label>
-                    <input type="date" name="join_date" class="form-control @error('join_date') is-invalid @enderror"
-                        value="{{ old('join_date', $employee->join_date ? $employee->join_date->format('Y-m-d') : '') }}">
+                    <div class="input-group">
+                        <input type="text" name="join_date" id="join_date"
+                            class="form-control flatpickr @error('join_date') is-invalid @enderror"
+                            value="{{ old('join_date', $employee->join_date ? $employee->join_date->format('Y-m-d') : '') }}"
+                            placeholder="DD/MM/YYYY">
+                        <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
+                    </div>
                     @error('join_date')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -203,7 +212,22 @@
 
 @push('scripts')
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr('#birth_date, #join_date', {
+                dateFormat: 'Y-m-d',
+                altInput: true,
+                altInputClass: 'form-control',
+                altFormat: 'd/m/Y',
+                allowInput: true,
+                locale: 'id',
+                static: true,
+                monthSelectorType: 'static'
+            });
+        });
+    </script>
+    <script>
         function checkStatusPegawai() {
+
             var status = document.getElementById('status_pegawai').value;
             var boxUnitKerja = document.getElementById('box_unit_kerja');
             var unitKerja = document.getElementById('unit_kerja');

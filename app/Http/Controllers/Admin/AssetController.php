@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
 use App\Models\Asset;
+use App\Models\AssetCatalog;
 use App\Models\AssetCategory;
 use App\Models\Employee;
 use Illuminate\Contracts\View\View;
@@ -63,6 +64,7 @@ public function create(): View
             'categories' => AssetCategory::orderBy('name')->get(),
             'employees' => Employee::orderBy('full_name')->get(),
             'bidangList' => self::BIDANG_LIST,
+            'catalogs' => AssetCatalog::orderBy('nama_barang')->get(),
         ]);
     }
 
@@ -83,9 +85,10 @@ public function create(): View
         // Default jumlah unit minimal 1
         $data['jumlah_unit'] = $request->input('jumlah_unit', 1);
 
-// Fallback asset_code dari kode_barang jika tidak diisi
+        // Bangun asset_code unik
         if (empty($data['asset_code'])) {
-            $data['asset_code'] = $data['kode_barang'] ?? ('AST-'.Str::random(8));
+            $base = $data['kode_barang'] ?? 'AST';
+            $data['asset_code'] = $this->generateUniqueAssetCode($base);
         }
 
         // Simpan foto aset jika diunggah
@@ -105,6 +108,7 @@ public function edit(Asset $asset): View
             'categories' => AssetCategory::orderBy('name')->get(),
             'employees' => Employee::orderBy('full_name')->get(),
             'bidangList' => self::BIDANG_LIST,
+            'catalogs' => AssetCatalog::orderBy('nama_barang')->get(),
         ]);
     }
 
@@ -140,5 +144,32 @@ public function update(UpdateAssetRequest $request, Asset $asset): RedirectRespo
         $asset->delete();
 
         return redirect()->route('assets.index')->with('success', 'Data aset berhasil dihapus.');
+    }
+
+    /**
+     * Buat kode aset yang unik berdasarkan kode barang.
+     * Format: {kode_barang}/{counter} contoh: 1.3.2.05.01.01.001/1
+     */
+    protected function generateUniqueAssetCode(string $base): string
+    {
+        $clean = trim($base);
+        if ($clean === '') {
+            $clean = 'AST';
+        }
+
+        // Cek apakah base sudah dipakai
+        if (!Asset::where('asset_code', $clean)->exists()) {
+            return $clean;
+        }
+
+        // Jika sudah ada, tambahkan suffix angka hingga unik
+        $suffix = 1;
+        do {
+            $candidate = $clean.'/'.$suffix;
+            if (!Asset::where('asset_code', $candidate)->exists()) {
+                return $candidate;
+            }
+            $suffix++;
+        } while (true);
     }
 }
