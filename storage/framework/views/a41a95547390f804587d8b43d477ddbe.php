@@ -123,15 +123,19 @@ unset($__errorArgs, $__bag); ?>
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label text-muted small">Tanggal Lahir</label>
-                        <input type="date" name="birth_date"
-                            class="form-control <?php $__errorArgs = ['birth_date'];
+                        <div class="input-group">
+                            <input type="text" name="birth_date" id="birth_date"
+                                class="form-control flatpickr <?php $__errorArgs = ['birth_date'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" value="<?php echo e(old('birth_date')); ?>">
+unset($__errorArgs, $__bag); ?>"
+                                value="<?php echo e(old('birth_date')); ?>" placeholder="DD/MM/YYYY">
+                            <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                        </div>
                         <?php $__errorArgs = ['birth_date'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -341,7 +345,9 @@ unset($__errorArgs, $__bag); ?>
 
                 <div class="mb-3">
                     <label class="form-label text-muted small">Tanggal Bergabung</label>
-                    <input type="date" name="join_date" class="form-control <?php $__errorArgs = ['join_date'];
+                    <div class="input-group">
+                        <input type="text" name="join_date" id="join_date"
+                            class="form-control flatpickr <?php $__errorArgs = ['join_date'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -349,7 +355,9 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>"
-                        value="<?php echo e(old('join_date')); ?>">
+                            value="<?php echo e(old('join_date')); ?>" placeholder="DD/MM/YYYY">
+                        <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
+                    </div>
                     <?php $__errorArgs = ['join_date'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -376,6 +384,20 @@ unset($__errorArgs, $__bag); ?>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startPush('scripts'); ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr('#birth_date, #join_date', {
+                dateFormat: 'Y-m-d',
+                altInput: true,
+                altInputClass: 'form-control',
+                altFormat: 'd/m/Y',
+                allowInput: true,
+                locale: 'id',
+                static: true,
+                monthSelectorType: 'static'
+            });
+        });
+    </script>
     <script>
         function checkStatusPegawai() {
             var status = document.getElementById('status_pegawai').value;

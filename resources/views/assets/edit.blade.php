@@ -56,21 +56,26 @@
 
                 <div class="mb-3">
                     <label class="form-label text-muted small">Kategori & Kode Barang (Permendagri)</label>
-                    <select name="kode_barang" class="form-select @error('kode_barang') is-invalid @enderror" required>
-                        <option value="">-- Pilih Kode Barang --</option>
-                        <option value="1.3.2.02.01.02.003"
-                            {{ old('kode_barang', $asset->kode_barang) == '1.3.2.02.01.02.003' ? 'selected' : '' }}>
-                            1.3.2.02.01.02.003 - Kendaraan Mini Bus</option>
-                        <option value="1.3.2.01.03.04.002"
-                            {{ old('kode_barang', $asset->kode_barang) == '1.3.2.01.03.04.002' ? 'selected' : '' }}>
-                            1.3.2.01.03.04.002 - Portable Generating Set</option>
-                        <option value="1.3.2.05.01.01.001"
-                            {{ old('kode_barang', $asset->kode_barang) == '1.3.2.05.01.01.001' ? 'selected' : '' }}>
-                            1.3.2.05.01.01.001 - Personal Computer / Laptop</option>
-                        <option value="1.3.2.05.02.01.004"
-                            {{ old('kode_barang', $asset->kode_barang) == '1.3.2.05.02.01.004' ? 'selected' : '' }}>
-                            1.3.2.05.02.01.004 - Printer / Scanner</option>
-                    </select>
+                    <div class="input-group">
+                        <select name="kode_barang" id="kode_barang_select"
+                            class="form-select @error('kode_barang') is-invalid @enderror" required>
+                            <option value="">-- Pilih Kode Barang --</option>
+                            @foreach ($catalogs ?? [] as $catalog)
+                                <option value="{{ $catalog->kode_barang }}" data-nama="{{ $catalog->nama_barang }}"
+                                    {{ old('kode_barang', $asset->kode_barang) == $catalog->kode_barang ? 'selected' : '' }}>
+                                    {{ $catalog->kode_barang }} - {{ $catalog->nama_barang }}</option>
+                            @endforeach
+                        </select>
+                        <a href="{{ route('catalog.index') }}" class="btn btn-outline-secondary" target="_blank"
+                            title="Kelola Katalog Barang">
+                            <i class="bi bi-journal-bookmark"></i>
+                        </a>
+                    </div>
+                    <div class="form-text">
+                        <a href="{{ route('catalog.create') }}" target="_blank">
+                            <i class="bi bi-plus-circle me-1"></i>Tambah kode barang baru
+                        </a>
+                    </div>
                     @error('kode_barang')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

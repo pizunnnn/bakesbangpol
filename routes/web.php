@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Admin\AssetController;
+use App\Http\Controllers\Admin\CatalogController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\PppkReviewController;
 use App\Http\Controllers\DashboardController;
@@ -19,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
   Route::middleware('role:Administrator|HR / Kepegawaian')->group(function (): void {
 Route::resource('employees', EmployeeController::class)->except(['show']);
     Route::resource('assets', AssetController::class)->except(['show']);
+    Route::resource('catalog', CatalogController::class)->except(['show']);
     Route::get('reviews', [PppkReviewController::class, 'index'])->name('reviews.index');
     Route::post('reviews/period', [PppkReviewController::class, 'storePeriod'])->name('reviews.period.store');
     Route::post('reviews/kegiatan', [PppkReviewController::class, 'storeKegiatan'])->name('reviews.kegiatan.store');

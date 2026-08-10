@@ -1,15 +1,15 @@
-# TODO: Penambahan Kategori Bidang pada Modul Aset
+# TODO - Fitur Katalog Barang (Kategori & Kode Barang)
 
-## Langkah Implementasi
+## Steps
 
-- [x] 1. Buat migration `2026_08_04_120000_add_bidang_to_assets_table.php`
-- [x] 2. Tambahkan `bidang` ke `$fillable` di `app/Models/Asset.php`
-- [x] 3. Tambahkan validasi `bidang` di `StoreAssetRequest.php` & `UpdateAssetRequest.php`
-- [x] 4. Tambahkan filter `bidang` di `AssetController@index`
-- [x] 5. Tambahkan dropdown Bidang di `assets/create.blade.php`
-- [x] 6. Tambahkan dropdown Bidang di `assets/edit.blade.php`
-- [x] 7. Tambahkan kolom Bidang + filter di `assets/index.blade.php`
-- [x] 8. Jalankan `php artisan migrate`
-- [x] 9. Bersihkan cache view & verifikasi kompilasi
-
-## Status: ✅ SELESAI
+- [x] 1. Buat migration `asset_catalog` (kode_barang + nama_barang)
+- [x] 2. Buat model `AssetCatalog`
+- [x] 3. Buat request `StoreCatalogRequest` & `UpdateCatalogRequest`
+- [x] 4. Buat `CatalogController` (CRUD)
+- [x] 5. Buat views katalog (index, create, edit)
+- [x] 6. Tambah route CRUD katalog di `routes/web.php`
+- [x] 7. Tambah menu "Katalog Barang" di `navigation.blade.php`
+- [x] 8. Buat seeder data awal katalog dari form saat ini
+- [x] 9. Integrasi form aset (create/edit) agar dropdown otomatis dari katalog
+- [x] 10. Jalankan migration & seeder
+- [x] 11. Verifikasi kompilasi view & test

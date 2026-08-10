@@ -30,6 +30,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="{{ route('catalog.index') }}"
+                            class="nav-link {{ request()->routeIs('catalog.*') ? 'active' : '' }}">
+                            <i class="bi bi-journal-bookmark me-1"></i>Katalog Barang
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="{{ route('reviews.index') }}"
                             class="nav-link {{ request()->routeIs('reviews.*') ? 'active' : '' }}">
                             <i class="bi bi-file-text me-1"></i>Form PPPK
