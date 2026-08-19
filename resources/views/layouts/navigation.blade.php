@@ -24,6 +24,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="{{ route('departments.index') }}"
+                            class="nav-link {{ request()->routeIs('departments.*') ? 'active' : '' }}">
+                            <i class="bi bi-building me-1"></i>Unit Kerja
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="{{ route('assets.index') }}"
                             class="nav-link {{ request()->routeIs('assets.*') ? 'active' : '' }}">
                             <i class="bi bi-box-seam me-1"></i>Aset

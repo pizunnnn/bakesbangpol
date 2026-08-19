@@ -15,7 +15,7 @@
                         {{ auth()->user()->name ?? 'Pengguna' }} 👋
                     </h1>
                     <p class="text-white-50 mb-0">
-                        Berikut ringkasan data SIMPEG-ASSET pada {{ now()->translatedFormat('l, d F Y') }}
+                        Ringkasan data Kepegawaian & Manajemen Aset Bakesbangpol pada {{ now()->translatedFormat('l, d F Y') }}
                     </p>
                 </div>
                 <div class="d-flex gap-2">
@@ -30,57 +30,51 @@
         </div>
     </div>
 
-    {{-- Statistic Cards --}}
-    <div class="row g-3 mb-4">
+    {{-- Primary Statistic Cards Row 1 --}}
+    <div class="row g-3 mb-3">
         @php
             $cards = [
                 [
                     'label' => 'Total Pegawai',
                     'value' => $statistics['employees'],
                     'icon' => 'people',
-                    'color' => 'primary',
                     'route' => 'employees.index',
                     'gradient' => 'linear-gradient(135deg, #4e7cff, #6ea8ff)',
                 ],
                 [
                     'label' => 'Total Aset',
-                    'value' => $statistics['assets'],
+                    'value' => $statistics['total_assets'],
                     'icon' => 'box-seam',
-                    'color' => 'success',
                     'route' => 'assets.index',
                     'gradient' => 'linear-gradient(135deg, #22c55e, #4ade80)',
                 ],
                 [
-                    'label' => 'Aset Tersedia',
-                    'value' => $statistics['available_assets'],
+                    'label' => 'Aset Aktif / Tersedia',
+                    'value' => $statistics['active_assets'],
                     'icon' => 'check-circle',
-                    'color' => 'info',
                     'route' => 'assets.index',
                     'gradient' => 'linear-gradient(135deg, #06b6d4, #22d3ee)',
                 ],
                 [
-                    'label' => 'Aset Dipinjam',
-                    'value' => $statistics['borrowed_assets'],
-                    'icon' => 'person-badge',
-                    'color' => 'warning',
+                    'label' => 'Aset Dalam Perbaikan',
+                    'value' => $statistics['in_repair_assets'],
+                    'icon' => 'tools',
                     'route' => 'assets.index',
                     'gradient' => 'linear-gradient(135deg, #f59e0b, #fbbf24)',
                 ],
                 [
-                    'label' => 'Total Form',
-                    'value' => $statistics['total_reviews'],
-                    'icon' => 'file-earmark-text',
-                    'color' => 'secondary',
-                    'route' => 'reviews.index',
-                    'gradient' => 'linear-gradient(135deg, #64748b, #94a3b8)',
+                    'label' => 'Aset Rusak',
+                    'value' => $statistics['damaged_assets'],
+                    'icon' => 'exclamation-triangle',
+                    'route' => 'assets.index',
+                    'gradient' => 'linear-gradient(135deg, #ef4444, #f87171)',
                 ],
             ];
         @endphp
         @foreach ($cards as $card)
             <div class="col-12 col-sm-6 col-xl">
                 <a href="{{ route($card['route']) }}" class="text-decoration-none">
-                    <div class="stat-card rounded-4 p-3 h-100 d-flex align-items-center gap-3 cursor-pointer"
-                        style="background: {{ $card['gradient'] }};">
+                    <div class="stat-card rounded-4 p-3 h-100 d-flex align-items-center gap-3 cursor-pointer" style="background: {{ $card['gradient'] }};">
                         <div class="stat-icon rounded-3 d-flex align-items-center justify-content-center">
                             <i class="bi bi-{{ $card['icon'] }} fs-3 text-white"></i>
                         </div>
@@ -94,15 +88,66 @@
         @endforeach
     </div>
 
+    {{-- Asset Metrics Row 2 (10 Years Disposal, Maintenance, Vehicles) --}}
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <a href="{{ route('assets.deletable') }}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 p-3 bg-danger text-white h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="small fw-semibold"><i class="bi bi-trash3 me-1"></i>Aset Umur >= 10 Thn</span>
+                        <span class="badge bg-white text-danger font-monospace">Disposal</span>
+                    </div>
+                    <div class="fs-3 fw-bold">{{ $statistics['aged_assets'] }} <small class="fs-6 fw-normal">Unit</small></div>
+                    <small class="text-white-50">Dapat Diproses Penghapusan</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('assets.index') }}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 p-3 bg-primary text-white h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="small fw-semibold"><i class="bi bi-wrench me-1"></i>Total Pemeliharaan</span>
+                        <span class="badge bg-white text-primary font-monospace">Maintenance</span>
+                    </div>
+                    <div class="fs-3 fw-bold">{{ $statistics['total_maintenances'] }} <small class="fs-6 fw-normal">Kegiatan</small></div>
+                    <small class="text-white-50">Total Biaya: Rp {{ number_format((float)$statistics['total_maintenance_cost'], 0, ',', '.') }}</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('assets.index') }}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 p-3 bg-dark text-white h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="small fw-semibold"><i class="bi bi-car-front me-1"></i>Total Kendaraan Dinas</span>
+                        <span class="badge bg-secondary font-monospace">Fleet</span>
+                    </div>
+                    <div class="fs-3 fw-bold">{{ $statistics['total_vehicles'] }} <small class="fs-6 fw-normal">Unit</small></div>
+                    <small class="text-white-50">Dalam Perbaikan: {{ $statistics['vehicles_in_repair'] }} Unit</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('reviews.index') }}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 p-3 bg-secondary text-white h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="small fw-semibold"><i class="bi bi-file-earmark-text me-1"></i>Form Ulasan PPPK</span>
+                        <span class="badge bg-white text-secondary font-monospace">Form</span>
+                    </div>
+                    <div class="fs-3 fw-bold">{{ $statistics['total_reviews'] }} <small class="fs-6 fw-normal">Laporan</small></div>
+                    <small class="text-white-50">Laporan evaluasi pegawai PPPK</small>
+                </div>
+            </a>
+        </div>
+    </div>
+
     {{-- Charts Row --}}
     <div class="row g-3 mb-4">
         <div class="col-12 col-xl-7">
             <div class="card shadow-sm border-0 rounded-4 h-100">
                 <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center pt-3 pb-0">
                     <div>
-                        <h2 class="h6 mb-0 fw-bold"><i class="bi bi-people me-2 text-primary"></i>Pegawai per Departemen
-                        </h2>
-                        <small class="text-muted">Distribusi pegawai berdasarkan unit kerja</small>
+                        <h2 class="h6 mb-0 fw-bold"><i class="bi bi-people me-2 text-primary"></i>Pegawai per Unit Kerja</h2>
+                        <small class="text-muted">Distribusi pegawai berdasarkan unit kerja / bidang</small>
                     </div>
                 </div>
                 <div class="card-body">
@@ -114,7 +159,7 @@
             <div class="card shadow-sm border-0 rounded-4 h-100">
                 <div class="card-header bg-white border-0 pt-3 pb-0">
                     <h2 class="h6 mb-0 fw-bold"><i class="bi bi-boxes me-2 text-success"></i>Aset per Kategori</h2>
-                    <small class="text-muted">Komposisi aset berdasarkan kategori</small>
+                    <small class="text-muted">Komposisi aset berdasarkan kategori master</small>
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center">
                     <canvas id="assetsByCategoryChart" height="120"></canvas>
@@ -149,9 +194,7 @@
                                     <tr>
                                         <td class="ps-4">
                                             <div class="d-flex align-items-center gap-2">
-                                                <div class="avatar rounded-circle d-flex align-items-center justify-content-center
-                                                    text-white fw-bold text-uppercase"
-                                                    style="background: linear-gradient(135deg, #4e7cff, #6ea8ff);">
+                                                <div class="avatar rounded-circle d-flex align-items-center justify-content-center text-white fw-bold text-uppercase" style="background: linear-gradient(135deg, #4e7cff, #6ea8ff);">
                                                     {{ substr($employee->full_name ?? '?', 0, 1) }}
                                                 </div>
                                                 <span class="fw-medium">{{ $employee->full_name }}</span>
@@ -160,8 +203,7 @@
                                         <td class="text-muted">{{ $employee->employee_number ?? '-' }}</td>
                                         <td>{{ $employee->department?->name ?? '-' }}</td>
                                         <td class="text-end pe-4">
-                                            <span
-                                                class="badge rounded-pill text-bg-light border">{{ $employee->position?->name ?? '-' }}</span>
+                                            <span class="badge rounded-pill text-bg-light border">{{ $employee->position?->name ?? '-' }}</span>
                                         </td>
                                     </tr>
                                 @empty
@@ -199,18 +241,12 @@
                             <tbody>
                                 @forelse ($recentAssets as $asset)
                                     <tr>
-                                        <td class="ps-4 fw-medium">{{ $asset->nama_barang ?? ($asset->category ?? '-') }}
-                                        </td>
+                                        <td class="ps-4 fw-medium">{{ $asset->nama_barang ?? ($asset->category ?? '-') }}</td>
                                         <td class="text-muted">{{ $asset->asset_code ?? '-' }}</td>
                                         <td>{{ $asset->jumlah_unit ?? 1 }}</td>
                                         <td class="text-end pe-4">
-                                            @php
-                                                $statusClass = $asset->status === 'Dipinjam' ? 'danger' : 'success';
-                                            @endphp
-                                            <span
-                                                class="badge rounded-pill bg-{{ $statusClass }}-subtle text-{{ $statusClass }}">
-                                                <i class="bi bi-circle-fill me-1"
-                                                    style="font-size: .5rem;"></i>{{ $asset->status ?? 'Tersedia' }}
+                                            <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle">
+                                                {{ $asset->status ?? 'Aktif' }}
                                             </span>
                                         </td>
                                     </tr>
@@ -293,13 +329,11 @@
 
 @push('scripts')
     <script>
-        // --- Pegawai per Departemen - Bar Chart Lively ---
         const empCanvas = document.getElementById('employeesByDepartmentChart');
         const empCtx = empCanvas.getContext('2d');
         const empCounts = {!! json_encode($employeesByDepartment->pluck('employees_count')) !!};
         const empLabels = {!! json_encode($employeesByDepartment->pluck('name')) !!};
 
-        // Vertical gradient for each bar
         const barColors = ['#4e7cff', '#06b6d4', '#22c55e', '#f59e0b', '#a855f7', '#ef4444', '#64748b'];
         const barGradients = empCounts.map((_, i) => {
             const g = empCtx.createLinearGradient(0, 0, 0, 300);

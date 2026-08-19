@@ -31,10 +31,10 @@ class DatabaseSeeder extends Seeder
 
     $admin->assignRole('Administrator');
 
-// Hapus unit kerja lama "Human Resources" jika masih ada
+    // Hapus unit kerja lama "Human Resources" jika masih ada
     Department::where('code', 'HUM')->delete();
 
-$unitKerja = [
+    $unitKerja = [
       'Sekretariat' => 'Sekretariat',
       'POLDAGRI' => 'Politik Dalam Negeri (POLDAGRI)',
       'IDWASBANG' => 'Ideologi dan Wawasan Kebangsaan (IDWASBANG)',
@@ -80,5 +80,10 @@ $unitKerja = [
         'description' => 'Jabatan Bakesbangpol',
       ]);
     }
+
+    $this->call([
+      AssetCategorySeeder::class,
+      AssetSeeder::class,
+    ]);
   }
 }

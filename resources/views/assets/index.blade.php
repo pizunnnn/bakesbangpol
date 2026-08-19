@@ -1,291 +1,166 @@
 @extends('layouts.app')
 
-@section('title', 'Sistem Pengadaan & Inventaris BMD')
+@section('title', 'Data Aset')
 
 @section('content')
-    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
-        <div>
-            <h1 class="h3 mb-1">Sistem Pengadaan & Inventaris BMD</h1>
-            <p class="text-muted mb-0">BAKESBANGPOL - SIMKAP ASSET SYSTEM</p>
-        </div>
-        <a href="{{ route('assets.create') }}" class="btn btn-primary">
-            <i class="bi bi-plus-lg me-1"></i>Tambah Aset
-        </a>
-    </div>
-
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
     <div class="card shadow-sm border-0 rounded-4">
-        <div
-            class="card-header bg-dark text-white d-flex justify-content-between align-items-center rounded-4 rounded-bottom-0 flex-wrap gap-2">
-            <span class="fw-bold">Daftar BMD & Pengadaan Barang (Bakesbangpol)</span>
-            <form action="{{ route('assets.index') }}" method="GET" class="d-flex flex-wrap align-items-center gap-1"
-                role="search">
-                <input type="text" name="search" value="{{ $search ?? '' }}" class="form-control form-control-sm me-1"
-                    placeholder="Cari nama barang, kode, merk..." aria-label="Cari aset">
-                <select name="status" class="form-select form-select-sm me-1 w-auto" aria-label="Filter status aset"
-                    onchange="this.form.submit()">
-                    <option value="">Semua Status</option>
-                    <option value="Tersedia" {{ ($status ?? '') === 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
-                    <option value="Dipinjam" {{ ($status ?? '') === 'Dipinjam' ? 'selected' : '' }}>Dipinjam</option>
-                </select>
-                <select name="bidang" class="form-select form-select-sm me-1 w-auto" aria-label="Filter bidang aset"
-                    onchange="this.form.submit()">
-                    <option value="">Semua Bidang</option>
-                    @foreach ($bidangList ?? [] as $b)
-                        <option value="{{ $b }}" {{ ($bidang ?? '') === $b ? 'selected' : '' }}>
-                            {{ $b }}
-                        </option>
-                    @endforeach
-                </select>
-                <button type="submit" class="btn btn-sm btn-light">
-                    <i class="bi bi-search"></i>
-                </button>
-                @if (!empty($search) || !empty($status) || !empty($bidang))
-                    <a href="{{ route('assets.index') }}" class="btn btn-sm btn-outline-light ms-1"
-                        title="Hapus filter & pencarian">
-                        <i class="bi bi-x-lg"></i>
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
+                    <h1 class="h4 mb-0 fw-bold text-primary">
+                        <i class="bi bi-box-seam-fill me-2"></i>Data Aset Bakesbangpol
+                    </h1>
+                    <p class="text-muted small mb-0">Kelola data sarana prasarana komputer, kendaraan, dan peralatan BMD.</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap align-items-center">
+                    <a href="{{ route('assets.deletable') }}" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center">
+                        <i class="bi bi-trash3 me-1"></i>Aset Dapat Dihapus (>=10 Thn)
                     </a>
-                @endif
+                    <a href="{{ route('assets.create') }}" class="btn btn-sm btn-primary d-inline-flex align-items-center">
+                        <i class="bi bi-plus-lg me-1"></i>Tambah Aset Baru
+                    </a>
+                </div>
+            </div>
+
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show rounded-3 mb-3" role="alert">
+                    <i class="bi bi-check-circle me-1"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
+            <!-- Form Filter & Pencarian -->
+            <form action="{{ route('assets.index') }}" method="GET" class="row g-2 mb-3 align-items-center" role="search">
+                <div class="col-md-3">
+                    <input type="text" name="search" value="{{ $search ?? '' }}" class="form-control form-control-sm" placeholder="Cari kode, nama barang, merk, unit...">
+                </div>
+                <div class="col-md-2">
+                    <select name="category_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">Semua Kategori</option>
+                        @foreach ($categories as $cat)
+                            <option value="{{ $cat->id }}" {{ ($categoryId ?? '') == $cat->id ? 'selected' : '' }}>
+                                {{ $cat->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="bidang" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">Semua Unit Kerja</option>
+                        @foreach ($bidangList as $b)
+                            <option value="{{ $b }}" {{ ($bidang ?? '') === $b ? 'selected' : '' }}>
+                                {{ $b }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">Semua Status</option>
+                        <option value="Aktif" {{ ($status ?? '') === 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                        <option value="Tersedia" {{ ($status ?? '') === 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
+                        <option value="Dipinjam" {{ ($status ?? '') === 'Dipinjam' ? 'selected' : '' }}>Dipinjam</option>
+                        <option value="Dalam Perbaikan" {{ ($status ?? '') === 'Dalam Perbaikan' ? 'selected' : '' }}>Dalam Perbaikan</option>
+                        <option value="Rusak" {{ ($status ?? '') === 'Rusak' ? 'selected' : '' }}>Rusak</option>
+                        <option value="Dapat Dihapus" {{ ($status ?? '') === 'Dapat Dihapus' ? 'selected' : '' }}>Dapat Dihapus</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex gap-1">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-search me-1"></i>Cari
+                    </button>
+                    @if (!empty($search) || !empty($status) || !empty($bidang) || !empty($categoryId))
+                        <a href="{{ route('assets.index') }}" class="btn btn-sm btn-outline-secondary" title="Reset Filter">
+                            <i class="bi bi-x-circle me-1"></i>Reset
+                        </a>
+                    @endif
+                </div>
             </form>
-        </div>
-        <div class="card-body p-0 table-responsive">
-            <table class="table table-bordered table-hover align-middle m-0">
-                <thead class="table-light text-center">
-                    <tr>
-                        <th>No</th>
-                        <th>Foto</th>
-                        <th>Kode Barang / Reg</th>
-                        <th>Nama & Spesifikasi Barang</th>
-                        <th>Perolehan</th>
-                        <th>Nilai (Rp)</th>
-                        <th>Unit</th>
-                        <th>Kondisi</th>
-                        <th>Bidang</th>
-                        <th>Status</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($assets as $index => $asset)
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
                         <tr>
-                            <td class="text-center fw-bold">{{ $assets->firstItem() + $index }}</td>
-                            <td class="text-center">
-                                @if ($asset->photo)
-                                    <img src="{{ asset('storage/' . $asset->photo) }}"
-                                        alt="Foto {{ $asset->nama_barang }}" class="rounded asset-thumb"
-                                        data-photo="{{ asset('storage/' . $asset->photo) }}"
-                                        data-name="{{ $asset->nama_barang ?? $asset->asset_code }}"
-                                        style="width:60px;height:60px;object-fit:cover;cursor:zoom-in;">
-                                @else
-                                    <span class="text-muted"><i class="bi bi-image fs-4"></i></span>
-                                @endif
-                            </td>
-                            <td>
-                                <span
-                                    class="badge bg-secondary mb-1">{{ $asset->kode_barang ?? $asset->asset_code }}</span><br>
-                                <small class="text-muted">Reg:
-                                    {{ str_pad((string) ($asset->no_register ?? '1'), 4, '0', STR_PAD_LEFT) }}</small>
-                            </td>
-                            <td>
-                                <strong>{{ $asset->nama_barang ?? ($asset->category ?? '-') }}</strong><br>
-                                <small class="text-primary">{{ $asset->merk_tipe ?? '-' }}</small><br>
-                                <small class="text-muted"
-                                    style="font-size: 0.78rem;">{{ $asset->spesifikasi ?? '-' }}</small>
-                            </td>
-                            <td>
-                                <small>{{ $asset->cara_perolehan ?? '-' }}</small><br>
-                                <small class="text-muted">Tahun: {{ $asset->tahun_perolehan ?? '-' }}</small>
-                            </td>
-                            <td class="text-end fw-bold">
-                                {{ $asset->nilai_perolehan ? number_format((float) $asset->nilai_perolehan, 0, ',', '.') : '-' }}
-                            </td>
-                            <td class="text-center fw-bold">{{ $asset->jumlah_unit ?? 1 }}</td>
-                            <td class="text-center">
-                                @php
-                                    $keadaan = $asset->keadaan ?? 'B';
-                                    $badge_kondisi =
-                                        $keadaan === 'B'
-                                            ? 'bg-success'
-                                            : ($keadaan === 'KB'
-                                                ? 'bg-warning text-dark'
-                                                : 'bg-danger');
-                                @endphp
-                                <span class="badge {{ $badge_kondisi }}">{{ $keadaan }}</span>
-                            </td>
-                            <td class="text-center">
-                                @if ($asset->bidang)
-                                    <span class="badge bg-info text-dark">{{ $asset->bidang }}</span>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                            <td class="text-center">
-                                @if (($asset->status ?? 'Tersedia') === 'Dipinjam')
-                                    <span class="badge bg-danger">Dipinjam</span>
-                                    @if ($asset->currentEmployee)
-                                        <div class="small text-danger mt-1">
-                                            <i class="bi bi-person"></i> {{ $asset->currentEmployee->full_name }}
-                                            @if ($asset->currentEmployee->unit_kerja && $asset->currentEmployee->unit_kerja !== '-')
-                                                <br><small
-                                                    class="text-muted">{{ $asset->currentEmployee->unit_kerja }}</small>
-                                            @endif
-                                        </div>
+                            <th>Kode Aset</th>
+                            <th>Nama Barang / Aset</th>
+                            <th>Kategori</th>
+                            <th>Merk / Spesifikasi</th>
+                            <th>Unit Kerja & Lokasi</th>
+                            <th>Nilai Perolehan</th>
+                            <th>Umur Aset</th>
+                            <th>Status</th>
+                            <th class="text-center" style="width: 140px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($assets as $asset)
+                            <tr>
+                                <td>
+                                    <span class="badge bg-secondary font-monospace">{{ $asset->asset_code }}</span>
+                                    @if($asset->kode_barang)<div class="small text-muted">{{ $asset->kode_barang }}</div>@endif
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ $asset->nama_barang }}</div>
+                                    @if($asset->currentEmployee)
+                                        <small class="text-muted"><i class="bi bi-person me-1"></i>{{ $asset->currentEmployee->full_name }}</small>
                                     @endif
-                                @else
-                                    <span class="badge bg-success">Tersedia</span>
-                                @endif
-                            </td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center gap-1">
-                                    <a href="{{ route('assets.edit', $asset) }}" class="btn btn-sm btn-outline-primary"
-                                        title="Edit">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <form action="{{ route('assets.destroy', $asset) }}" method="POST" class="d-inline"
-                                        onsubmit="return confirm('Yakin ingin menghapus data aset ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="11" class="text-center text-muted py-4">Belum ada data aset/pengadaan.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        @if ($assets->hasPages())
-            <div class="card-footer bg-white">
-                {{ $assets->links() }}
+                                </td>
+                                <td><small class="fw-semibold">{{ $asset->categoryRelation->name ?? $asset->category ?? '-' }}</small></td>
+                                <td>
+                                    <div class="small fw-semibold">{{ $asset->merk_tipe ?: ($asset->brand . ' ' . $asset->model) ?: '-' }}</div>
+                                    @if($asset->serial_number)<small class="text-muted">SN: {{ $asset->serial_number }}</small>@endif
+                                </td>
+                                <td>
+                                    <div><small class="fw-semibold">{{ $asset->bidang ?: '-' }}</small></div>
+                                    <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>{{ $asset->location ?: '-' }}</small>
+                                </td>
+                                <td class="fw-bold text-success">Rp {{ number_format((float)($asset->nilai_perolehan ?: $asset->purchase_price), 0, ',', '.') }}</td>
+                                <td>
+                                    <small class="fw-semibold">{{ $asset->age_formatted }}</small>
+                                    @if($asset->is_eligible_disposal)
+                                        <div><span class="badge bg-warning text-dark px-2 py-1"><i class="bi bi-exclamation-triangle me-1"></i>>= 10 Thn</span></div>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if ($asset->status === 'Aktif' || $asset->status === 'Tersedia' || $asset->status === 'Disetujui')
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">Aktif</span>
+                                    @elseif ($asset->status === 'Dalam Perbaikan')
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Dalam Perbaikan</span>
+                                    @elseif ($asset->status === 'Dapat Dihapus')
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Dapat Dihapus</span>
+                                    @elseif ($asset->status === 'Sudah Dihapus')
+                                        <span class="badge bg-secondary">Sudah Dihapus</span>
+                                    @else
+                                        <span class="badge bg-info">{{ $asset->status }}</span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{{ route('assets.show', $asset) }}" class="btn btn-info text-white" title="Detail & History Lifecycle Aset">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ route('assets.edit', $asset) }}" class="btn btn-warning" title="Edit Aset">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form action="{{ route('assets.destroy', $asset) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus aset ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger" title="Hapus Aset">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">Belum ada data aset.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-        @endif
-    </div>
-
-    <!-- Modal Zoom Foto -->
-    <div class="modal fade" id="photoZoomModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header d-flex justify-content-between align-items-center">
-                    <h6 class="modal-title" id="zoomModalTitle">Zoom Foto</h6>
-                    <div class="d-flex align-items-center gap-1">
-                        <button type="button" class="btn btn-sm btn-outline-primary" id="zoomInBtn" title="Perbesar">
-                            <i class="bi bi-zoom-in"></i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomOutBtn"
-                            title="Perkecil">
-                            <i class="bi bi-zoom-out"></i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-dark" id="zoomResetBtn" title="Reset">
-                            <i class="bi bi-arrows-fullscreen"></i>
-                        </button>
-                        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal"
-                            aria-label="Tutup"></button>
-                    </div>
-                </div>
-                <div class="modal-body p-0" style="background:#000;overflow:hidden;height:70vh;">
-                    <div id="zoomContainer" style="width:100%;height:100%;overflow:hidden;cursor:grab;">
-                        <img id="zoomImage" src="" alt="Foto aset"
-                            style="width:100%;height:100%;object-fit:contain;transform-origin:center;transition:transform 0.1s ease;">
-                    </div>
-                </div>
-                <div class="modal-footer small text-muted">
-                    <span><i class="bi bi-mouse me-1"></i>Gulir untuk zoom, klik & geser untuk menggeser foto</span>
-                </div>
-            </div>
+            {{ $assets->links() }}
         </div>
     </div>
-
-    @push('scripts')
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const modalEl = document.getElementById('photoZoomModal');
-                const img = document.getElementById('zoomImage');
-                const container = document.getElementById('zoomContainer');
-                const title = document.getElementById('zoomModalTitle');
-                let scale = 1;
-                let posX = 0;
-                let posY = 0;
-                let isDragging = false;
-                let startX = 0;
-                let startY = 0;
-
-                function applyTransform() {
-                    img.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
-                }
-
-                function resetZoom() {
-                    scale = 1;
-                    posX = 0;
-                    posY = 0;
-                    applyTransform();
-                }
-
-                function zoomBy(factor) {
-                    scale = Math.min(5, Math.max(1, scale + factor));
-                    applyTransform();
-                }
-
-                // Klik thumbnail
-                document.querySelectorAll('.asset-thumb').forEach(function(thumb) {
-                    thumb.addEventListener('click', function() {
-                        img.src = thumb.dataset.photo;
-                        title.textContent = thumb.dataset.name || 'Zoom Foto';
-                        resetZoom();
-                        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                        modal.show();
-                    });
-                });
-
-                // Tombol zoom
-                document.getElementById('zoomInBtn').addEventListener('click', function() {
-                    zoomBy(0.5);
-                });
-                document.getElementById('zoomOutBtn').addEventListener('click', function() {
-                    zoomBy(-0.5);
-                });
-                document.getElementById('zoomResetBtn').addEventListener('click', resetZoom);
-
-                // Scroll untuk zoom
-                container.addEventListener('wheel', function(e) {
-                    e.preventDefault();
-                    zoomBy(e.deltaY < 0 ? 0.3 : -0.3);
-                }, {
-                    passive: false
-                });
-
-                // Drag untuk geser
-                container.addEventListener('mousedown', function(e) {
-                    isDragging = true;
-                    startX = e.clientX - posX;
-                    startY = e.clientY - posY;
-                    container.style.cursor = 'grabbing';
-                });
-                document.addEventListener('mousemove', function(e) {
-                    if (!isDragging) return;
-                    posX = e.clientX - startX;
-                    posY = e.clientY - startY;
-                    applyTransform();
-                });
-                document.addEventListener('mouseup', function() {
-                    isDragging = false;
-                    container.style.cursor = 'grab';
-                });
-
-                // Reset saat modal ditutup
-                modalEl.addEventListener('hidden.bs.modal', resetZoom);
-            });
-        </script>
-    @endpush
 @endsection

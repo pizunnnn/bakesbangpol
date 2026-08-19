@@ -95,8 +95,8 @@
 <body>
     <main class="card">
         <div class="badge">SIMPEG-ASSET</div>
-        <h1>Sistem Informasi Kepegawaian, Aset, dan Review PPPK</h1>
-        <p>Kelola data pegawai, aset, dan evaluasi PPPK dalam satu platform pemerintahan modern.</p>
+        <h1>Sistem Informasi Kepegawaian, Aset</h1>
+        <p>Kelola data pegawai, dan aset.</p>
         <div class="btn-row">
             @auth
                 <a href="{{ route('dashboard') }}"><i class="bi bi-speedometer2"></i> Masuk Dashboard</a>
