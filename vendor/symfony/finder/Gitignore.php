@@ -88,4 +88,8 @@ class Gitignore
             .$regex
             .(!str_ends_with($gitignoreLine, '/') ? '(?:$|/)' : '');
     }
+
+    
 }
+
+
