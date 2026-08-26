@@ -48,7 +48,17 @@ class AssetController extends Controller
                 });
             })
             ->when($status, function ($query) use ($status) {
-                $query->where('status', $status);
+                if ($status === 'eligible_10_years') {
+                    $cutoffDate = Carbon::now()->subYears(10)->format('Y-m-d');
+                    $cutoffYear = (int) Carbon::now()->subYears(10)->year;
+                    $query->where(function ($q) use ($cutoffDate, $cutoffYear) {
+                        $q->where('purchase_date', '<=', $cutoffDate)
+                          ->orWhere('tahun_perolehan', '<=', $cutoffYear)
+                          ->orWhere('status', 'Dapat Dihapus');
+                    });
+                } else {
+                    $query->where('status', $status);
+                }
             })
             ->when($bidang, function ($query) use ($bidang) {
                 $query->where('bidang', $bidang);

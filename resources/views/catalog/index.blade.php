@@ -85,7 +85,7 @@
         </div>
         @if ($catalogs->hasPages())
             <div class="card-footer bg-white">
-                {{ $catalogs->links() }}
+                {{ $catalogs->links('pagination::bootstrap-5') }}
             </div>
         @endif
     </div>

@@ -54,7 +54,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="">Semua Status</option>
                         <option value="Aktif" {{ ($status ?? '') === 'Aktif' ? 'selected' : '' }}>Aktif</option>
@@ -62,7 +62,8 @@
                         <option value="Dipinjam" {{ ($status ?? '') === 'Dipinjam' ? 'selected' : '' }}>Dipinjam</option>
                         <option value="Dalam Perbaikan" {{ ($status ?? '') === 'Dalam Perbaikan' ? 'selected' : '' }}>Dalam Perbaikan</option>
                         <option value="Rusak" {{ ($status ?? '') === 'Rusak' ? 'selected' : '' }}>Rusak</option>
-                        <option value="Dapat Dihapus" {{ ($status ?? '') === 'Dapat Dihapus' ? 'selected' : '' }}>Dapat Dihapus</option>
+                        <option value="eligible_10_years" {{ ($status ?? '') === 'eligible_10_years' ? 'selected' : '' }}>Umur >= 10 Tahun (Potensi Penghapusan)</option>
+                        <option value="Dapat Dihapus" {{ ($status ?? '') === 'Dapat Dihapus' ? 'selected' : '' }}>Diverifikasi: Dapat Dihapus</option>
                     </select>
                 </div>
                 <div class="col-md-3 d-flex gap-1">
@@ -160,7 +161,9 @@
                     </tbody>
                 </table>
             </div>
-            {{ $assets->links() }}
+            <div class="mt-3">
+                {{ $assets->links('pagination::bootstrap-5') }}
+            </div>
         </div>
     </div>
 @endsection

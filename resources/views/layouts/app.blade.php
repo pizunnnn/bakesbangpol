@@ -28,6 +28,16 @@
         .app-shell {
             min-height: 100vh;
         }
+
+        /* Fix pagination SVG icon sizing */
+        nav .pagination svg,
+        svg.w-5.h-5,
+        .pagination svg {
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+            display: inline-block !important;
+            vertical-align: middle;
+        }
     </style>
 </head>
 

@@ -55,7 +55,7 @@
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="">Semua Status</option>
                         <option value="Aktif" <?php echo e(($status ?? '') === 'Aktif' ? 'selected' : ''); ?>>Aktif</option>
@@ -63,7 +63,8 @@
                         <option value="Dipinjam" <?php echo e(($status ?? '') === 'Dipinjam' ? 'selected' : ''); ?>>Dipinjam</option>
                         <option value="Dalam Perbaikan" <?php echo e(($status ?? '') === 'Dalam Perbaikan' ? 'selected' : ''); ?>>Dalam Perbaikan</option>
                         <option value="Rusak" <?php echo e(($status ?? '') === 'Rusak' ? 'selected' : ''); ?>>Rusak</option>
-                        <option value="Dapat Dihapus" <?php echo e(($status ?? '') === 'Dapat Dihapus' ? 'selected' : ''); ?>>Dapat Dihapus</option>
+                        <option value="eligible_10_years" <?php echo e(($status ?? '') === 'eligible_10_years' ? 'selected' : ''); ?>>Umur >= 10 Tahun (Potensi Penghapusan)</option>
+                        <option value="Dapat Dihapus" <?php echo e(($status ?? '') === 'Dapat Dihapus' ? 'selected' : ''); ?>>Diverifikasi: Dapat Dihapus</option>
                     </select>
                 </div>
                 <div class="col-md-3 d-flex gap-1">
@@ -161,8 +162,10 @@
                     </tbody>
                 </table>
             </div>
-            <?php echo e($assets->links()); ?>
+            <div class="mt-3">
+                <?php echo e($assets->links('pagination::bootstrap-5')); ?>
 
+            </div>
         </div>
     </div>
 <?php $__env->stopSection(); ?>

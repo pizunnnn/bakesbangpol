@@ -23,6 +23,7 @@ class DashboardController extends Controller
 
     $statistics = [
       'employees' => Employee::query()->count(),
+      'departments' => Department::query()->count(),
       'total_assets' => Asset::query()->count(),
       'active_assets' => Asset::query()->whereIn('status', ['Aktif', 'Tersedia', 'Dipinjam', 'Disetujui'])->count(),
       'in_repair_assets' => Asset::query()->where('status', 'Dalam Perbaikan')->count(),
@@ -45,7 +46,6 @@ class DashboardController extends Controller
         ->orWhere('nama_barang', 'like', '%hiace%')
         ->count(),
       'vehicles_in_repair' => VehicleRepair::query()->whereIn('status', ['Diajukan', 'Dalam Perbaikan'])->count(),
-      'total_reviews' => PppkReview::query()->count(),
     ];
 
     $employeesByDepartment = Department::query()

@@ -173,7 +173,9 @@
                     </tbody>
                 </table>
             </div>
-            {{ $assets->links() }}
+            <div class="mt-3">
+                {{ $assets->links('pagination::bootstrap-5') }}
+            </div>
         </div>
     </div>
 @endsection
