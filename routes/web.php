@@ -50,6 +50,9 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::delete('employees/retirements/{retirement}', [EmployeeHistoryController::class, 'destroyRetirement'])->name('employees.retirements.destroy');
 
     // MANAJEMEN ASET
+    Route::get('assets/export-excel', [AssetController::class, 'exportExcel'])->name('assets.export-excel');
+    Route::get('assets/export-pdf', [AssetController::class, 'exportPdf'])->name('assets.export-pdf');
+    Route::get('assets/print-preview', [AssetController::class, 'printPreview'])->name('assets.print-preview');
     Route::get('assets/deletable', [AssetController::class, 'deletable'])->name('assets.deletable');
     Route::post('assets/{asset}/verify-disposal', [AssetController::class, 'verifyDisposal'])->name('assets.verify-disposal');
     Route::post('assets/import-excel', [AssetController::class, 'importExcel'])->name('assets.import-excel');

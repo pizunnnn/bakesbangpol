@@ -11,11 +11,13 @@ use App\Models\Asset;
 use App\Models\AssetCatalog;
 use App\Models\AssetCategory;
 use App\Models\Employee;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AssetController extends Controller
 {
@@ -340,5 +342,359 @@ class AssetController extends Controller
             }
             $suffix++;
         } while (true);
+    }
+
+    /**
+     * Export Excel (.csv / .xlsx) Data Aset
+     */
+    public function exportExcel(Request $request): StreamedResponse
+    {
+        $search = $request->query('search');
+        $status = $request->query('status');
+        $bidang = $request->query('bidang');
+        $categoryId = $request->query('category_id');
+
+        $query = Asset::with(['categoryRelation', 'currentEmployee'])
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_barang', 'like', "%{$search}%")
+                        ->orWhere('kode_barang', 'like', "%{$search}%")
+                        ->orWhere('asset_code', 'like', "%{$search}%")
+                        ->orWhere('merk_tipe', 'like', "%{$search}%")
+                        ->orWhere('category', 'like', "%{$search}%")
+                        ->orWhere('status', 'like', "%{$search}%")
+                        ->orWhere('bidang', 'like', "%{$search}%");
+                });
+            })
+            ->when($status, function ($query) use ($status) {
+                if ($status === 'eligible_10_years') {
+                    $cutoffDate = Carbon::now()->subYears(10)->format('Y-m-d');
+                    $cutoffYear = (int) Carbon::now()->subYears(10)->year;
+                    $query->where(function ($q) use ($cutoffDate, $cutoffYear) {
+                        $q->where('purchase_date', '<=', $cutoffDate)
+                          ->orWhere('tahun_perolehan', '<=', $cutoffYear)
+                          ->orWhere('status', 'Dapat Dihapus');
+                    });
+                } else {
+                    $query->where('status', $status);
+                }
+            })
+            ->when($bidang, function ($query) use ($bidang) {
+                $query->where('bidang', $bidang);
+            })
+            ->when($categoryId, function ($query) use ($categoryId) {
+                $query->where('asset_category_id', $categoryId);
+            })
+            ->orderBy('id', 'asc');
+
+        $fileName = 'Data_Aset_Bakesbangpol_' . date('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        return response()->stream(function () use ($query) {
+            $handle = fopen('php://output', 'w');
+            // Write UTF-8 BOM for Excel auto-formatting
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            // CSV Headers
+            fputcsv($handle, [
+                'No',
+                'Kode Aset (SIMPEG)',
+                'Kode Barang (BMD)',
+                'No. Register',
+                'Nama Barang / Aset',
+                'Kategori',
+                'Merk / Tipe',
+                'Spesifikasi',
+                'Unit Kerja / Bidang',
+                'Lokasi',
+                'Tahun Perolehan',
+                'Nilai Perolehan (Rp)',
+                'Jumlah Unit',
+                'Kondisi',
+                'Status',
+            ]);
+
+            $no = 1;
+            $query->chunk(200, function ($assets) use ($handle, &$no) {
+                foreach ($assets as $asset) {
+                    fputcsv($handle, [
+                        $no++,
+                        $asset->asset_code,
+                        $asset->kode_barang ?: '-',
+                        $asset->no_register ?: '1',
+                        $asset->nama_barang,
+                        $asset->categoryRelation->name ?? $asset->category ?? '-',
+                        $asset->merk_tipe ?: ($asset->brand . ' ' . $asset->model) ?: '-',
+                        $asset->spesifikasi ?: '-',
+                        $asset->bidang ?: '-',
+                        $asset->location ?: '-',
+                        $asset->tahun_perolehan ?: ($asset->purchase_date ? $asset->purchase_date->format('Y') : '-'),
+                        (float)($asset->nilai_perolehan ?: $asset->purchase_price),
+                        $asset->jumlah_unit ?: 1,
+                        $asset->condition ?: ($asset->keadaan ?: 'Baik'),
+                        $asset->status,
+                    ]);
+                }
+            });
+
+            fclose($handle);
+        }, 200, $headers);
+    }
+
+    /**
+     * Preview Cetak Tampilan HTML (seperti Form PPPK)
+     */
+    public function printPreview(Request $request): View
+    {
+        $mode = $request->query('mode', 'rekap');
+        $search = $request->query('search');
+        $status = $request->query('status');
+        $bidang = $request->query('bidang');
+        $categoryId = $request->query('category_id');
+
+        if ($mode === 'rekap' || $mode === 'summary') {
+            $totalCount = Asset::count();
+            $totalUnits = (int) Asset::sum('jumlah_unit');
+            $totalValue = (float) Asset::sum('nilai_perolehan');
+
+            $cutoffDate = Carbon::now()->subYears(10)->format('Y-m-d');
+            $cutoffYear = (int) Carbon::now()->subYears(10)->year;
+            $agedAssetsCount = Asset::where(function ($q) use ($cutoffDate, $cutoffYear) {
+                $q->where('purchase_date', '<=', $cutoffDate)
+                  ->orWhere('tahun_perolehan', '<=', $cutoffYear)
+                  ->orWhere('status', 'Dapat Dihapus');
+            })->count();
+
+            $categories = AssetCategory::orderBy('name')->get();
+            $byCategory = [];
+            foreach ($categories as $cat) {
+                $cQuery = Asset::where('asset_category_id', $cat->id);
+                $byCategory[] = [
+                    'name' => $cat->name,
+                    'count' => $cQuery->count(),
+                    'units' => (int) $cQuery->sum('jumlah_unit'),
+                    'value' => (float) $cQuery->sum('nilai_perolehan'),
+                ];
+            }
+
+            $byBidang = [];
+            foreach (self::BIDANG_LIST as $b) {
+                $bQuery = Asset::where('bidang', $b);
+                $byBidang[] = [
+                    'name' => $b,
+                    'count' => $bQuery->count(),
+                    'value' => (float) $bQuery->sum('nilai_perolehan'),
+                ];
+            }
+
+            $statuses = ['Aktif', 'Tersedia', 'Dipinjam', 'Dalam Perbaikan', 'Rusak', 'Dapat Dihapus'];
+            $byStatus = [];
+            foreach ($statuses as $st) {
+                $sQuery = Asset::where('status', $st);
+                $byStatus[] = [
+                    'name' => $st,
+                    'count' => $sQuery->count(),
+                    'value' => (float) $sQuery->sum('nilai_perolehan'),
+                ];
+            }
+
+            return view('assets.print_preview_summary', compact(
+                'totalCount',
+                'totalUnits',
+                'totalValue',
+                'agedAssetsCount',
+                'byCategory',
+                'byBidang',
+                'byStatus'
+            ));
+        }
+
+        $query = Asset::with(['categoryRelation', 'currentEmployee'])
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_barang', 'like', "%{$search}%")
+                        ->orWhere('kode_barang', 'like', "%{$search}%")
+                        ->orWhere('asset_code', 'like', "%{$search}%")
+                        ->orWhere('merk_tipe', 'like', "%{$search}%")
+                        ->orWhere('category', 'like', "%{$search}%")
+                        ->orWhere('status', 'like', "%{$search}%")
+                        ->orWhere('bidang', 'like', "%{$search}%");
+                });
+            })
+            ->when($status, function ($query) use ($status) {
+                if ($status === 'eligible_10_years') {
+                    $cutoffDate = Carbon::now()->subYears(10)->format('Y-m-d');
+                    $cutoffYear = (int) Carbon::now()->subYears(10)->year;
+                    $query->where(function ($q) use ($cutoffDate, $cutoffYear) {
+                        $q->where('purchase_date', '<=', $cutoffDate)
+                          ->orWhere('tahun_perolehan', '<=', $cutoffYear)
+                          ->orWhere('status', 'Dapat Dihapus');
+                    });
+                } else {
+                    $query->where('status', $status);
+                }
+            })
+            ->when($bidang, function ($query) use ($bidang) {
+                $query->where('bidang', $bidang);
+            })
+            ->when($categoryId, function ($query) use ($categoryId) {
+                $query->where('asset_category_id', $categoryId);
+            })
+            ->latest()
+            ->take(500);
+
+        $assets = $query->get();
+        $totalValue = (float) $assets->sum('nilai_perolehan');
+
+        $filterCategory = $categoryId ? AssetCategory::find($categoryId)?->name : null;
+        $filterBidang = $bidang;
+        $filterStatus = $status;
+
+        return view('assets.print_preview_detail', compact(
+            'assets',
+            'totalValue',
+            'filterCategory',
+            'filterBidang',
+            'filterStatus',
+            'search'
+        ));
+    }
+
+    /**
+     * Cetak PDF Data Aset (Mode Rekapitulasi Eksekutif vs Mode Detail Terfilter)
+     */
+    public function exportPdf(Request $request)
+    {
+        $mode = $request->query('mode', 'rekap');
+        $isDownload = $request->query('download') === '1';
+        $search = $request->query('search');
+        $status = $request->query('status');
+        $bidang = $request->query('bidang');
+        $categoryId = $request->query('category_id');
+
+        if ($mode === 'rekap' || $mode === 'summary') {
+            // Mode 1: Laporan Rekapitulasi Eksekutif untuk Pimpinan
+            $totalCount = Asset::count();
+            $totalUnits = (int) Asset::sum('jumlah_unit');
+            $totalValue = (float) Asset::sum('nilai_perolehan');
+
+            $cutoffDate = Carbon::now()->subYears(10)->format('Y-m-d');
+            $cutoffYear = (int) Carbon::now()->subYears(10)->year;
+            $agedAssetsCount = Asset::where(function ($q) use ($cutoffDate, $cutoffYear) {
+                $q->where('purchase_date', '<=', $cutoffDate)
+                  ->orWhere('tahun_perolehan', '<=', $cutoffYear)
+                  ->orWhere('status', 'Dapat Dihapus');
+            })->count();
+
+            // Rekap per Kategori
+            $categories = AssetCategory::orderBy('name')->get();
+            $byCategory = [];
+            foreach ($categories as $cat) {
+                $cQuery = Asset::where('asset_category_id', $cat->id);
+                $byCategory[] = [
+                    'name' => $cat->name,
+                    'count' => $cQuery->count(),
+                    'units' => (int) $cQuery->sum('jumlah_unit'),
+                    'value' => (float) $cQuery->sum('nilai_perolehan'),
+                ];
+            }
+
+            // Rekap per Bidang
+            $byBidang = [];
+            foreach (self::BIDANG_LIST as $b) {
+                $bQuery = Asset::where('bidang', $b);
+                $byBidang[] = [
+                    'name' => $b,
+                    'count' => $bQuery->count(),
+                    'value' => (float) $bQuery->sum('nilai_perolehan'),
+                ];
+            }
+
+            // Rekap per Status
+            $statuses = ['Aktif', 'Tersedia', 'Dipinjam', 'Dalam Perbaikan', 'Rusak', 'Dapat Dihapus'];
+            $byStatus = [];
+            foreach ($statuses as $st) {
+                $sQuery = Asset::where('status', $st);
+                $byStatus[] = [
+                    'name' => $st,
+                    'count' => $sQuery->count(),
+                    'value' => (float) $sQuery->sum('nilai_perolehan'),
+                ];
+            }
+
+            $pdf = Pdf::loadView('assets.pdf_summary', compact(
+                'totalCount',
+                'totalUnits',
+                'totalValue',
+                'agedAssetsCount',
+                'byCategory',
+                'byBidang',
+                'byStatus'
+            ))->setPaper('a4', 'portrait');
+
+            $filename = 'Laporan_Rekapitulasi_Aset_Bakesbangpol_' . date('Ymd_His') . '.pdf';
+            return $isDownload ? $pdf->download($filename) : $pdf->stream($filename);
+        }
+
+        // Mode 2: Laporan Rincian Terfilter (max limit 500)
+        $query = Asset::with(['categoryRelation', 'currentEmployee'])
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_barang', 'like', "%{$search}%")
+                        ->orWhere('kode_barang', 'like', "%{$search}%")
+                        ->orWhere('asset_code', 'like', "%{$search}%")
+                        ->orWhere('merk_tipe', 'like', "%{$search}%")
+                        ->orWhere('category', 'like', "%{$search}%")
+                        ->orWhere('status', 'like', "%{$search}%")
+                        ->orWhere('bidang', 'like', "%{$search}%");
+                });
+            })
+            ->when($status, function ($query) use ($status) {
+                if ($status === 'eligible_10_years') {
+                    $cutoffDate = Carbon::now()->subYears(10)->format('Y-m-d');
+                    $cutoffYear = (int) Carbon::now()->subYears(10)->year;
+                    $query->where(function ($q) use ($cutoffDate, $cutoffYear) {
+                        $q->where('purchase_date', '<=', $cutoffDate)
+                          ->orWhere('tahun_perolehan', '<=', $cutoffYear)
+                          ->orWhere('status', 'Dapat Dihapus');
+                    });
+                } else {
+                    $query->where('status', $status);
+                }
+            })
+            ->when($bidang, function ($query) use ($bidang) {
+                $query->where('bidang', $bidang);
+            })
+            ->when($categoryId, function ($query) use ($categoryId) {
+                $query->where('asset_category_id', $categoryId);
+            })
+            ->latest()
+            ->take(500);
+
+        $assets = $query->get();
+        $totalValue = (float) $assets->sum('nilai_perolehan');
+
+        $filterCategory = $categoryId ? AssetCategory::find($categoryId)?->name : null;
+        $filterBidang = $bidang;
+        $filterStatus = $status;
+
+        $pdf = Pdf::loadView('assets.pdf_detail', compact(
+            'assets',
+            'totalValue',
+            'filterCategory',
+            'filterBidang',
+            'filterStatus',
+            'search'
+        ))->setPaper('a4', 'landscape');
+
+        $filename = 'Laporan_Rincian_Aset_Bakesbangpol_' . date('Ymd_His') . '.pdf';
+        return $isDownload ? $pdf->download($filename) : $pdf->stream($filename);
     }
 }
