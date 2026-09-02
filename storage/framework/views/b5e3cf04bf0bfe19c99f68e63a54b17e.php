@@ -172,8 +172,10 @@
                     </tbody>
                 </table>
             </div>
-            <?php echo e($employees->links()); ?>
+            <div class="mt-3">
+                <?php echo e($employees->links('pagination::bootstrap-5')); ?>
 
+            </div>
         </div>
     </div>
 

@@ -50,7 +50,7 @@ class DashboardController extends Controller
 
     $employeesByDepartment = Department::query()
       ->withCount('employees')
-      ->orderBy('name')
+      ->orderByDesc('employees_count')
       ->get();
 
     $assetsByCategory = AssetCategory::query()

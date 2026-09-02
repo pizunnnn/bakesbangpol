@@ -263,10 +263,10 @@
             {{-- Grafik Pegawai per Unit Kerja --}}
             <div class="card shadow-sm border-0 rounded-4 mb-4">
                 <div class="card-header bg-white border-0 pt-3 pb-0">
-                    <h2 class="h6 mb-1 fw-bold" style="color: #059669; font-size: 1.1rem;"><i class="bi bi-bar-chart-line-fill me-2"></i>Pegawai per Unit Kerja</h2>
-                    <p class="text-muted mb-0 fs-7">Distribusi pegawai berdasarkan unit kerja / bidang</p>
+                    <h2 class="h6 mb-1 fw-bold" style="color: #059669; font-size: 1.1rem;"><i class="bi bi-pie-chart-fill me-2"></i>Pegawai per Unit Kerja</h2>
+                    <p class="text-muted mb-0 fs-7">Distribusi & proporsi pegawai berdasarkan unit kerja / bidang</p>
                 </div>
-                <div class="card-body p-3" style="min-height: 250px;">
+                <div class="card-body d-flex align-items-center justify-content-center p-3" style="min-height: 250px;">
                     <canvas id="employeesByDepartmentChart" height="210"></canvas>
                 </div>
             </div>
@@ -294,11 +294,19 @@
                                 @forelse ($recentEmployees as $employee)
                                     <tr>
                                         <td class="ps-4 py-3">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="avatar rounded-circle d-flex align-items-center justify-content-center text-white fw-bold text-uppercase shadow-sm" style="background: linear-gradient(135deg, #059669, #34d399); width: 36px; height: 36px; font-size: 0.9rem;">
-                                                    {{ substr($employee->full_name ?? '?', 0, 1) }}
+                                            <div class="d-flex align-items-center gap-3">
+                                                @if (!empty($employee->photo) && file_exists(public_path('storage/' . $employee->photo)))
+                                                    <img src="{{ asset('storage/' . $employee->photo) }}" alt="{{ $employee->full_name }}" class="employee-avatar shadow-sm border border-2 border-white">
+                                                @else
+                                                    <div class="employee-avatar text-white fw-bold text-uppercase shadow-sm" style="background: linear-gradient(135deg, #059669, #10b981);">
+                                                        {{ substr($employee->full_name ?? '?', 0, 1) }}
+                                                    </div>
+                                                @endif
+                                                <div style="min-width: 0;">
+                                                    <span class="fw-bold text-dark d-block text-truncate" style="font-size: 0.95rem; max-width: 180px;" title="{{ $employee->full_name }}">
+                                                        {{ $employee->full_name }}
+                                                    </span>
                                                 </div>
-                                                <span class="fw-bold text-dark" style="font-size: 0.95rem;">{{ $employee->full_name }}</span>
                                             </div>
                                         </td>
                                         <td class="py-3 text-secondary font-monospace" style="font-size: 0.9rem;">{{ $employee->employee_number ?? '-' }}</td>
@@ -385,87 +393,86 @@
         .fs-7 {
             font-size: 0.85rem;
         }
+
+        .employee-avatar {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            min-height: 38px;
+            max-width: 38px;
+            max-height: 38px;
+            flex-shrink: 0;
+            aspect-ratio: 1 / 1;
+            border-radius: 50% !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+        }
     </style>
 @endpush
 
 @push('scripts')
     <script>
+        // Calm & Soothing Emerald/Meadow Green tonal palette for employee chart (distinct from blue assets)
         const empCanvas = document.getElementById('employeesByDepartmentChart');
-        const empCtx = empCanvas.getContext('2d');
         const empCounts = {!! json_encode($employeesByDepartment->pluck('employees_count')) !!};
         const empLabels = {!! json_encode($employeesByDepartment->pluck('name')) !!};
-
-        // Meadow Green palette for employee chart with high contrast & legibility
-        const meadowColors = ['#10b981', '#059669', '#34d399', '#047857', '#059669', '#10b981', '#15803d'];
-        const barGradients = empCounts.map((_, i) => {
-            const g = empCtx.createLinearGradient(0, 0, 0, 300);
-            g.addColorStop(0, meadowColors[i % meadowColors.length]);
-            g.addColorStop(1, meadowColors[i % meadowColors.length] + '88');
-            return g;
-        });
+        const employeePalette = [
+            '#059669', // Emerald primer (Sekretariat / terbesar)
+            '#10b981', // Meadow Green
+            '#34d399', // Soft Mint
+            '#047857', // Deep Pine Green
+            '#6ee7b7', // Light Sage
+            '#a7f3d0', // Pale Mint
+            '#065f46'  // Dark Forest
+        ];
 
         new Chart(empCanvas, {
-            type: 'bar',
+            type: 'doughnut',
             data: {
                 labels: empLabels,
                 datasets: [{
-                    label: 'Jumlah Pegawai',
                     data: empCounts,
-                    backgroundColor: barGradients,
-                    borderRadius: 8,
-                    borderSkipped: false,
-                    maxBarThickness: 42,
-                    hoverBorderColor: '#064e3b',
-                    hoverBorderWidth: 2
+                    backgroundColor: employeePalette,
+                    borderWidth: 2.5,
+                    borderColor: '#ffffff',
+                    hoverOffset: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '65%',
                 animation: {
-                    duration: 1000,
+                    duration: 900,
                     easing: 'easeOutQuart'
                 },
                 plugins: {
                     legend: {
-                        display: false
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 14,
+                            font: { size: 12, weight: '600' },
+                            color: '#334155'
+                        }
                     },
                     tooltip: {
                         backgroundColor: '#064e3b',
                         titleColor: '#ffffff',
                         bodyColor: '#d1fae5',
-                        titleFont: { size: 14, weight: 'bold' },
+                        titleFont: { size: 13, weight: 'bold' },
                         bodyFont: { size: 13, weight: '600' },
                         padding: 12,
-                        cornerRadius: 10,
-                        displayColors: false,
+                        cornerRadius: 8,
                         callbacks: {
-                            label: (ctx) => ` ${ctx.parsed.y} Orang Pegawai`
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0,
-                            color: '#475569',
-                            font: { size: 12, weight: '600' }
-                        },
-                        grid: {
-                            color: 'rgba(0,0,0,.06)',
-                            drawTicks: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            color: '#334155',
-                            font: {
-                                size: 12,
-                                weight: '700'
+                            label: function(ctx) {
+                                const val = ctx.parsed || 0;
+                                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                return ` ${val} Orang Pegawai (${percentage}%)`;
                             }
                         }
                     }
@@ -473,39 +480,46 @@
             }
         });
 
-        // Soft Blue palette for asset chart
+        // Soft Blue tonal palette for asset chart (soothing & distinct)
         new Chart(document.getElementById('assetsByCategoryChart'), {
             type: 'doughnut',
             data: {
                 labels: {!! json_encode($assetsByCategory->pluck('name')) !!},
                 datasets: [{
                     data: {!! json_encode($assetsByCategory->pluck('assets_count')) !!},
-                    backgroundColor: ['#0284c7', '#38bdf8', '#0ea5e9', '#60a5fa', '#f59e0b', '#dc2626'],
-                    borderWidth: 3,
+                    backgroundColor: ['#0284c7', '#0ea5e9', '#38bdf8', '#60a5fa', '#93c5fd', '#3b82f6'],
+                    borderWidth: 2.5,
                     borderColor: '#ffffff',
-                    hoverOffset: 8
+                    hoverOffset: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 cutout: '65%',
+                animation: {
+                    duration: 900,
+                    easing: 'easeOutQuart'
+                },
                 plugins: {
                     legend: {
                         position: 'bottom',
                         labels: {
                             usePointStyle: true,
+                            pointStyle: 'circle',
                             padding: 14,
                             font: { size: 12, weight: '600' },
                             color: '#334155'
                         }
                     },
                     tooltip: {
-                        backgroundColor: '#0f172a',
-                        titleFont: { size: 14, weight: 'bold' },
+                        backgroundColor: '#0c4a6e',
+                        titleColor: '#ffffff',
+                        bodyColor: '#e0f2fe',
+                        titleFont: { size: 13, weight: 'bold' },
                         bodyFont: { size: 13, weight: '600' },
                         padding: 12,
-                        cornerRadius: 10
+                        cornerRadius: 8
                     }
                 }
             }

@@ -13,6 +13,35 @@
                     <p class="text-muted small mb-0">Kelola data sarana prasarana komputer, kendaraan, dan peralatan BMD.</p>
                 </div>
                 <div class="d-flex gap-2 flex-wrap align-items-center">
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-success dropdown-toggle d-inline-flex align-items-center fw-bold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-printer me-1"></i>Export / Cetak Laporan
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="min-width: 280px;">
+                            <li>
+                                <a class="dropdown-item fw-semibold text-primary py-2" href="<?php echo e(route('assets.print-preview', array_merge(request()->query(), ['mode' => 'rekap']))); ?>" target="_blank">
+                                    <i class="bi bi-eye me-2 fs-6"></i>Preview Cetak Laporan
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item fw-semibold text-danger py-2" href="<?php echo e(route('assets.export-pdf', array_merge(request()->query(), ['mode' => 'rekap']))); ?>" target="_blank">
+                                    <i class="bi bi-file-earmark-pdf me-2 fs-6"></i>Preview PDF Rekapitulasi
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item fw-semibold text-info py-2" href="<?php echo e(route('assets.export-pdf', array_merge(request()->query(), ['mode' => 'detail']))); ?>" target="_blank">
+                                    <i class="bi bi-file-earmark-text me-2 fs-6"></i>Preview PDF Rincian Aset
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item fw-semibold text-success py-2" href="<?php echo e(route('assets.export-excel', request()->query())); ?>">
+                                    <i class="bi bi-file-earmark-excel me-2 fs-6"></i>Export Excel (.csv / .xlsx)
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                     <a href="<?php echo e(route('assets.deletable')); ?>" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center">
                         <i class="bi bi-trash3 me-1"></i>Aset Dapat Dihapus (>=10 Thn)
                     </a>
@@ -57,7 +86,7 @@
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="">Semua Status</option>
                         <option value="Aktif" <?php echo e(($status ?? '') === 'Aktif' ? 'selected' : ''); ?>>Aktif</option>
@@ -65,7 +94,8 @@
                         <option value="Dipinjam" <?php echo e(($status ?? '') === 'Dipinjam' ? 'selected' : ''); ?>>Dipinjam</option>
                         <option value="Dalam Perbaikan" <?php echo e(($status ?? '') === 'Dalam Perbaikan' ? 'selected' : ''); ?>>Dalam Perbaikan</option>
                         <option value="Rusak" <?php echo e(($status ?? '') === 'Rusak' ? 'selected' : ''); ?>>Rusak</option>
-                        <option value="Dapat Dihapus" <?php echo e(($status ?? '') === 'Dapat Dihapus' ? 'selected' : ''); ?>>Dapat Dihapus</option>
+                        <option value="eligible_10_years" <?php echo e(($status ?? '') === 'eligible_10_years' ? 'selected' : ''); ?>>Umur >= 10 Tahun (Potensi Penghapusan)</option>
+                        <option value="Dapat Dihapus" <?php echo e(($status ?? '') === 'Dapat Dihapus' ? 'selected' : ''); ?>>Diverifikasi: Dapat Dihapus</option>
                     </select>
                 </div>
                 <div class="col-md-3 d-flex gap-1">
@@ -163,8 +193,10 @@
                     </tbody>
                 </table>
             </div>
-            <?php echo e($assets->links()); ?>
+            <div class="mt-3">
+                <?php echo e($assets->links('pagination::bootstrap-5')); ?>
 
+            </div>
         </div>
     </div>
 <?php $__env->stopSection(); ?>

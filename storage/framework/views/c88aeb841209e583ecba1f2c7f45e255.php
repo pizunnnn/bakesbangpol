@@ -86,7 +86,7 @@
         </div>
         <?php if($catalogs->hasPages()): ?>
             <div class="card-footer bg-white">
-                <?php echo e($catalogs->links()); ?>
+                <?php echo e($catalogs->links('pagination::bootstrap-5')); ?>
 
             </div>
         <?php endif; ?>

@@ -20,13 +20,13 @@
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="min-width: 280px;">
                             <li>
                                 <a class="dropdown-item fw-semibold text-primary py-2" href="{{ route('assets.print-preview', array_merge(request()->query(), ['mode' => 'detail', 'status' => 'eligible_10_years'])) }}" target="_blank">
-                                    <i class="bi bi-eye me-2 fs-6"></i>Preview Cetak Laporan (Tampilan PPPK)
+                                    <i class="bi bi-eye me-2 fs-6"></i>Preview Cetak Laporan
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item fw-semibold text-danger py-2" href="{{ route('assets.export-pdf', array_merge(request()->query(), ['mode' => 'rekap'])) }}" target="_blank">
-                                    <i class="bi bi-file-earmark-pdf me-2 fs-6"></i>Preview PDF Rekapitulasi (Pimpinan)
+                                    <i class="bi bi-file-earmark-pdf me-2 fs-6"></i>Preview PDF Rekapitulasi
                                 </a>
                             </li>
                             <li>

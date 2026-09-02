@@ -84,6 +84,7 @@ class DatabaseSeeder extends Seeder
     $this->call([
       AssetCategorySeeder::class,
       AssetSeeder::class,
+      EmployeeSeeder::class,
     ]);
   }
 }
