@@ -311,7 +311,8 @@ unset($__errorArgs, $__bag); ?>">
                             <option value="Tersedia" <?php echo e(old('status', $asset->status) == 'Tersedia' ? 'selected' : ''); ?>>Tersedia</option>
                             <option value="Dipinjam" <?php echo e(old('status', $asset->status) == 'Dipinjam' ? 'selected' : ''); ?>>Dipinjam</option>
                             <option value="Dalam Perbaikan" <?php echo e(old('status', $asset->status) == 'Dalam Perbaikan' ? 'selected' : ''); ?>>Dalam Perbaikan</option>
-                            <option value="Rusak" <?php echo e(old('status', $asset->status) == 'Rusak' ? 'selected' : ''); ?>>Rusak</option>
+                            <option value="Rusak Ringan" <?php echo e(in_array(old('status', $asset->status), ['Rusak Ringan', 'RR']) ? 'selected' : ''); ?>>Rusak Ringan</option>
+                            <option value="Rusak Berat" <?php echo e(in_array(old('status', $asset->status), ['Rusak Berat', 'RB', 'Rusak']) ? 'selected' : ''); ?>>Rusak Berat</option>
                             <option value="Dapat Dihapus" <?php echo e(old('status', $asset->status) == 'Dapat Dihapus' ? 'selected' : ''); ?>>Dapat Dihapus</option>
                             <option value="Sudah Dihapus" <?php echo e(old('status', $asset->status) == 'Sudah Dihapus' ? 'selected' : ''); ?>>Sudah Dihapus</option>
                         </select>

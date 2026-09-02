@@ -64,13 +64,17 @@ class EmployeeHistoryController extends Controller
             'dokumen_sk' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
         ]);
 
+        if (!isset($validated['gaji_pokok']) || $validated['gaji_pokok'] === null) {
+            $validated['gaji_pokok'] = 0;
+        }
+
         if ($request->hasFile('dokumen_sk')) {
             $validated['dokumen_sk'] = $request->file('dokumen_sk')->store('sk_gaji_berkala', 'public');
         }
 
         $employee->salaryHistories()->create($validated);
 
-        return redirect()->route('employees.show', $employee)->with('success', 'Riwayat gaji berkala berhasil ditambahkan.');
+        return redirect()->route('employees.show', $employee)->with('success', 'Riwayat kenaikan gaji berkala berhasil ditambahkan.');
     }
 
     /**

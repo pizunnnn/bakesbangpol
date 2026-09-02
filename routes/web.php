@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CatalogController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\EmployeeHistoryController;
+use App\Http\Controllers\Admin\EmployeeAllowanceController;
 use App\Http\Controllers\Admin\PppkReviewController;
 use App\Http\Controllers\Admin\VehicleRepairController;
 use App\Http\Controllers\DashboardController;
@@ -48,6 +49,11 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
     Route::post('employees/{employee}/retirements', [EmployeeHistoryController::class, 'storeRetirement'])->name('employees.retirements.store');
     Route::delete('employees/retirements/{retirement}', [EmployeeHistoryController::class, 'destroyRetirement'])->name('employees.retirements.destroy');
+
+    // Tunjangan & Penggajian Pegawai
+    Route::post('employees/{employee}/allowances', [EmployeeAllowanceController::class, 'storeOrUpdate'])->name('employees.allowances.store');
+    Route::get('employees/{employee}/allowances/slip', [EmployeeAllowanceController::class, 'printSlip'])->name('employees.allowances.slip');
+    Route::get('employees-payroll-report', [EmployeeAllowanceController::class, 'printPayrollReport'])->name('employees.payroll-report');
 
     // MANAJEMEN ASET
     Route::get('assets/export-excel', [AssetController::class, 'exportExcel'])->name('assets.export-excel');

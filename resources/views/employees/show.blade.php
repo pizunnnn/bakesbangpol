@@ -270,7 +270,10 @@
                 <!-- TAB GAJI BERKALA -->
                 <div class="tab-pane fade" id="tab-salary" role="tabpanel">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold text-primary mb-0"><i class="bi bi-cash-stack me-1"></i>Riwayat Gaji Berkala (KJB 2 Tahun)</h6>
+                        <div>
+                            <h6 class="fw-bold text-primary mb-0"><i class="bi bi-cash-stack me-1"></i>Riwayat Kenaikan Gaji Berkala (KGB 2 Tahun)</h6>
+                            <small class="text-muted">Total Riwayat: <strong class="text-dark">{{ $employee->salaryHistories->count() }} Kali Kenaikan Gaji</strong></small>
+                        </div>
                         <div class="d-flex gap-2">
                             @if($employee->is_eligible_kgb)
                                 <form action="{{ route('employees.salaries.auto', $employee) }}" method="POST" class="d-inline">
@@ -291,7 +294,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>TMT Berlaku</th>
-                                    <th>Gaji Pokok</th>
+                                    <th>Frekuensi Kenaikan</th>
                                     <th>Pangkat / Golongan</th>
                                     <th>Nomor SK</th>
                                     <th>Keterangan</th>
@@ -303,7 +306,14 @@
                                 @forelse($employee->salaryHistories as $sal)
                                     <tr>
                                         <td><strong>{{ $sal->tanggal_mulai_berlaku ? $sal->tanggal_mulai_berlaku->format('d F Y') : '-' }}</strong></td>
-                                        <td class="fw-bold text-success">Rp {{ number_format((float)$sal->gaji_pokok, 0, ',', '.') }}</td>
+                                        <td>
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 fw-bold">
+                                                Kenaikan Ke-{{ $employee->salaryHistories->count() - $loop->index }}
+                                            </span>
+                                            @if($loop->first && $employee->salaryHistories->count() > 1)
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle ms-1">Terbaru</span>
+                                            @endif
+                                        </td>
                                         <td>{{ $sal->pangkat_golongan ?: '-' }}</td>
                                         <td>{{ $sal->nomor_sk ?: '-' }}</td>
                                         <td><small class="text-muted">{{ $sal->keterangan ?: '-' }}</small></td>
@@ -325,7 +335,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="7" class="text-center text-muted py-4">Belum ada riwayat gaji berkala.</td></tr>
+                                    <tr><td colspan="7" class="text-center text-muted py-4">Belum ada riwayat kenaikan gaji berkala.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -438,6 +448,232 @@
                                 @endforelse
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                
+                <!-- TAB DATA TUNJANGAN & GAJI -->
+                <div class="tab-pane fade" id="tab-allowance" role="tabpanel">
+                    @php $al = $employee->allowance; @endphp
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                        <div>
+                            <h6 class="fw-bold text-primary mb-0"><i class="bi bi-wallet2 me-1"></i>Hak Kepemilikan Tunjangan & Data Pemilik</h6>
+                            <small class="text-muted">Status Kepesertaan Tunjangan: <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>Terdaftar & Aktif</span></small>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{{ route('employees.allowances.slip', $employee) }}" target="_blank" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-printer me-1"></i>Cetak Keterangan Hak Tunjangan
+                            </a>
+                            <a href="{{ route('employees.payroll-report') }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-people me-1"></i>Daftar Penerima Tunjangan Bakesbangpol
+                            </a>
+                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editAllowanceModal">
+                                <i class="bi bi-pencil-square me-1"></i>Edit Data Pemilik Tunjangan
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- KARTU DATA PRIBADI PEMILIK TUNJANGAN -->
+                    <div class="card border-0 bg-light rounded-3 p-3 mb-4 shadow-sm">
+                        <h6 class="fw-bold text-dark border-bottom pb-2 mb-3" style="font-size: 13px;">
+                            <i class="bi bi-person-vcard me-2 text-primary"></i>Data Pribadi Pemilik Tunjangan & Rekening Bank
+                        </h6>
+                        <div class="row g-3" style="font-size: 12.5px;">
+                            <div class="col-md-3">
+                                <span class="text-muted d-block small">NPWP Pegawai</span>
+                                <strong class="text-dark font-monospace">{{ $al->npwp ?? '-' }}</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <span class="text-muted d-block small">Nomor Rekening Bank</span>
+                                <strong class="text-primary font-monospace">{{ $al->nomor_rekening ?? '-' }}</strong>
+                                <span class="badge bg-secondary-subtle text-secondary small ms-1">{{ $al->nama_bank ?? 'Bank bjb' }}</span>
+                            </div>
+                            <div class="col-md-3">
+                                <span class="text-muted d-block small">Status Kawin & Kode Jiwa</span>
+                                <strong>Status: {{ ($al && $al->status_kawin === 'K') ? 'Kawin (K)' : 'Belum Kawin (TK)' }}</strong> | Kode: <span class="badge bg-info text-dark">{{ $al->kd_jiwa ?? '1100' }}</span> (<strong>{{ $al->jml_jiwa ?? 1 }} Jiwa</strong>)
+                            </div>
+                            <div class="col-md-3">
+                                <span class="text-muted d-block small">Masa Kerja (Masker) & TMT SK</span>
+                                <strong>{{ $al->masker ?? $employee->masa_kerja_tahun ?? '-' }} Tahun</strong> | TMT: {{ $al && $al->tmt_sk ? $al->tmt_sk->format('d/m/Y') : ($employee->join_date ? $employee->join_date->format('d/m/Y') : '-') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DAFTAR RINCIAN HAK TUNJANGAN YANG DITERIMA PEGAWAI -->
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-header bg-white border-bottom py-3">
+                            <h6 class="fw-bold text-primary mb-0"><i class="bi bi-check2-square me-2"></i>Daftar Hak Tunjangan Yang Diterima Pegawai</h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 40px;" class="text-center">No</th>
+                                            <th>Jenis Tunjangan</th>
+                                            <th style="width: 180px;" class="text-center">Status Hak Penerimaan</th>
+                                            <th>Keterangan / Dasar Kepemilikan Hak</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-center fw-bold">1</td>
+                                            <td>
+                                                <strong>Tunjangan Suami / Istri (Pasangan)</strong>
+                                                <div class="text-muted small">Tunjangan untuk 1 orang pasangan sah</div>
+                                            </td>
+                                            <td class="text-center">
+                                                @if($al?->has_tj_suami_istri)
+                                                    <span class="badge bg-success px-3 py-2">
+                                                        <i class="bi bi-check-circle-fill me-1"></i>Mendapatkan
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-secondary-subtle text-secondary px-3 py-2">Tidak Mendapatkan</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($al?->has_tj_suami_istri)
+                                                    <span class="text-success fw-semibold"><i class="bi bi-person-heart me-1"></i>Berhak menerima (Status pernikahan sah tercatat)</span>
+                                                @else
+                                                    <span class="text-muted">Tidak berstatus kawin / tidak ada tanggungan pasangan</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center fw-bold">2</td>
+                                            <td>
+                                                <strong>Tunjangan Anak Tanggungan</strong>
+                                                <div class="text-muted small">Maksimal 2 anak kandung/sah memenuhi syarat usia & sekolah</div>
+                                            </td>
+                                            <td class="text-center">
+                                                @if($al?->has_tj_anak)
+                                                    <span class="badge bg-info text-dark px-3 py-2">
+                                                        <i class="bi bi-people-fill me-1"></i>Mendapatkan ({{ $al->jumlah_anak_tanggungan }} Anak)
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-secondary-subtle text-secondary px-3 py-2">Tidak Ada Tanggungan</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($al?->has_tj_anak)
+                                                    <span class="text-info-emphasis fw-semibold"><i class="bi bi-person-badge me-1"></i>Tercatat {{ $al->jumlah_anak_tanggungan }} anak tanggungan aktif dalam SIMPEG</span>
+                                                @else
+                                                    <span class="text-muted">Tidak ada anak tanggungan terdaftar</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center fw-bold">3</td>
+                                            <td>
+                                                <strong>Tunjangan Jabatan Struktural</strong>
+                                                <div class="text-muted small">Diberikan kepada pejabat yang memegang jabatan struktural</div>
+                                            </td>
+                                            <td class="text-center">
+                                                @if($al?->has_tj_struktural)
+                                                    <span class="badge bg-warning text-dark px-3 py-2">
+                                                        <i class="bi bi-award-fill me-1"></i>Pejabat Struktural
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-light text-muted border px-3 py-2">Bukan Struktural</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($al?->has_tj_struktural)
+                                                    <span class="text-warning-emphasis fw-semibold"><i class="bi bi-diagram-3-fill me-1"></i>Menduduki jabatan struktural: {{ $employee->position->name ?? 'Kepala / Pimpinan' }}</span>
+                                                @else
+                                                    <span class="text-muted">Bukan pemegang jabatan struktural</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center fw-bold">4</td>
+                                            <td>
+                                                <strong>Tunjangan Jabatan Fungsional</strong>
+                                                <div class="text-muted small">Diberikan kepada pejabat fungsional tertentu / keahlian / keterampilan</div>
+                                            </td>
+                                            <td class="text-center">
+                                                @if($al?->has_tj_fungsional)
+                                                    <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                                                        <i class="bi bi-gear-fill me-1"></i>Pejabat Fungsional
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-light text-muted border px-3 py-2">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($al?->has_tj_fungsional)
+                                                    <span class="text-primary fw-semibold"><i class="bi bi-briefcase me-1"></i>Menduduki jabatan fungsional aktif di {{ $employee->unit_kerja ?? 'Bakesbangpol' }}</span>
+                                                @else
+                                                    <span class="text-muted">Bukan jabatan fungsional tertentu</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center fw-bold">5</td>
+                                            <td>
+                                                <strong>Tunjangan Pangan / Beras</strong>
+                                                <div class="text-muted small">Diberikan untuk seluruh anggota keluarga yang masuk tanggungan</div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                                    <i class="bi bi-bag-check-fill me-1"></i>Mendapatkan ({{ $al->jml_jiwa ?? 1 }} Jiwa)
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="text-success fw-semibold"><i class="bi bi-house-check me-1"></i>Hak tunjangan beras aktif untuk {{ $al->jml_jiwa ?? 1 }} jiwa keluarga terdaftar</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center fw-bold">6</td>
+                                            <td>
+                                                <strong>Tunjangan Umum Pegawai</strong>
+                                                <div class="text-muted small">Tunjangan umum bagi pegawai ASN yang memenuhi kriteria</div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                                    <i class="bi bi-check-lg me-1"></i>Terdaftar
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">Tunjangan umum ASN Pemerintah Provinsi Jawa Barat</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center fw-bold">7</td>
+                                            <td>
+                                                <strong>Kepesertaan Iuran & Jaminan (IWP & BPJS)</strong>
+                                                <div class="text-muted small">Iuran pensiun, hari tua, dan BPJS Kesehatan resmi</div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2">
+                                                    <i class="bi bi-shield-check me-1"></i>IWP 8% & 1% Aktif
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">Kepesertaan jaminan pensiun dan BPJS Kesehatan aktif</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RINGKASAN STATUS HAK KEPEMILIKAN BANNER -->
+                    <div class="card border-0 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #0284c7, #0369a1);">
+                        <div class="card-body p-4 text-white d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <div>
+                                <h6 class="text-uppercase fw-bold mb-1" style="letter-spacing: 0.5px;">Status Hak Kepemilikan Tunjangan Pegawai</h6>
+                                <p class="mb-0 small" style="opacity: 0.95;">
+                                    <i class="bi bi-check2-all me-1"></i>Seluruh hak tunjangan pegawai telah terverifikasi resmi dan terdaftar pada rekening {{ $al->nama_bank ?? 'Bank bjb' }} No. {{ $al->nomor_rekening ?? '-' }}.
+                                </p>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-white text-primary fw-bold px-3 py-2 fs-6">
+                                    <i class="bi bi-patch-check-fill me-1"></i>Hak Tunjangan Aktif
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -606,12 +842,12 @@
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label fw-semibold small text-muted">Tanggal Mulai Berlaku (TMT) <span class="text-danger">*</span></label>
+                            <label class="form-label fw-semibold small text-muted">Tanggal Mulai Berlaku (TMT KGB) <span class="text-danger">*</span></label>
                             <input type="date" name="tanggal_mulai_berlaku" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-semibold small text-muted">Gaji Pokok Baru (Rp)</label>
-                            <input type="number" step="0.01" name="gaji_pokok" class="form-control" placeholder="Contoh: 3500000">
+                            <label class="form-label fw-semibold small text-muted">Frekuensi Kenaikan Gaji</label>
+                            <input type="text" class="form-control bg-light fw-bold text-primary" value="Kenaikan Ke-{{ $employee->salaryHistories->count() + 1 }}" readonly>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold small text-muted">Pangkat / Golongan Terkait</label>
@@ -783,4 +1019,110 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL EDIT DATA PEMILIK TUNJANGAN -->
+    @php $al = $employee->allowance; @endphp
+    <div class="modal fade" id="editAllowanceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form action="{{ route('employees.allowances.store', $employee) }}" method="POST">
+                    @csrf
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title"><i class="bi bi-wallet2 me-2"></i>Edit Data Pemilik & Hak Tunjangan</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">1. Data Pribadi Pemilik Tunjangan & Rekening Bank</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-muted">Periode Bulan</label>
+                                <input type="text" name="periode_bulan" class="form-control" value="{{ old('periode_bulan', $al->periode_bulan ?? 'Desember 2024') }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-muted">NPWP Pegawai</label>
+                                <input type="text" name="npwp" class="form-control" value="{{ old('npwp', $al->npwp ?? '') }}" placeholder="00.000.000.0-000.000">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-muted">Nomor Rekening Bank</label>
+                                <input type="text" name="nomor_rekening" class="form-control" value="{{ old('nomor_rekening', $al->nomor_rekening ?? '') }}" placeholder="Nomor rekening">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-muted">Nama Bank</label>
+                                <input type="text" name="nama_bank" class="form-control" value="{{ old('nama_bank', $al->nama_bank ?? 'Bank bjb') }}">
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">2. Status Keluarga & Hak Tanggungan</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small text-muted">Status Pernikahan</label>
+                                <select name="status_kawin" class="form-select">
+                                    <option value="K" {{ old('status_kawin', $al->status_kawin ?? 'K') == 'K' ? 'selected' : '' }}>Kawin (K) - Berhak Tj. Pasangan</option>
+                                    <option value="TK" {{ old('status_kawin', $al->status_kawin ?? 'K') == 'TK' ? 'selected' : '' }}>Tidak Kawin (TK)</option>
+                                    <option value="HB" {{ old('status_kawin', $al->status_kawin ?? 'K') == 'HB' ? 'selected' : '' }}>Hidup Berpisah (HB)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small text-muted">Kode Jiwa</label>
+                                <input type="text" name="kd_jiwa" class="form-control" value="{{ old('kd_jiwa', $al->kd_jiwa ?? '1100') }}" placeholder="1102 / 1101 / 1100">
+                                <small class="form-text text-muted">Digit terakhir = jumlah anak</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small text-muted">Total Jiwa Tanggungan</label>
+                                <input type="number" name="jml_jiwa" class="form-control" value="{{ old('jml_jiwa', $al->jml_jiwa ?? 1) }}" min="1" required>
+                                <small class="form-text text-muted">Untuk hak tunjangan beras</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-muted">Masa Kerja (Masker)</label>
+                                <input type="text" name="masker" class="form-control" value="{{ old('masker', $al->masker ?? ($employee->masa_kerja_tahun ?? '')) }}" placeholder="Tahun">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-muted">TMT SK</label>
+                                <input type="date" name="tmt_sk" class="form-control" value="{{ old('tmt_sk', $al && $al->tmt_sk ? $al->tmt_sk->format('Y-m-d') : ($employee->join_date ? $employee->join_date->format('Y-m-d') : '')) }}">
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">3. Status Hak Tunjangan Jabatan</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-muted">Hak Tunjangan Struktural</label>
+                                <select name="tunjangan_struktural" class="form-select">
+                                    <option value="0" {{ ($al && (float)$al->tunjangan_struktural == 0) ? 'selected' : '' }}>Bukan Pejabat Struktural</option>
+                                    <option value="1260000" {{ ($al && (float)$al->tunjangan_struktural > 0) ? 'selected' : '' }}>Menerima (Pejabat Struktural Eselon II / III / IV)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-muted">Hak Tunjangan Fungsional</label>
+                                <select name="tunjangan_fungsional" class="form-select">
+                                    <option value="0" {{ ($al && (float)$al->tunjangan_fungsional == 0) ? 'selected' : '' }}>Bukan Pejabat Fungsional</option>
+                                    <option value="540000" {{ ($al && (float)$al->tunjangan_fungsional > 0) ? 'selected' : '' }}>Menerima (Pejabat Fungsional Tertentu / Umum)</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small text-muted">Catatan Kepegawaian</label>
+                                <textarea name="catatan" class="form-control" rows="2" placeholder="Catatan tambahan mengenai hak tunjangan...">{{ old('catatan', $al->catatan ?? '') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Simpan Hak Tunjangan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('tab') === 'allowance') {
+                var tabBtn = document.getElementById('tab-allowance-btn');
+                if (tabBtn) {
+                    var tabObj = new bootstrap.Tab(tabBtn);
+                    tabObj.show();
+                }
+            }
+        });
+    </script>
 @endsection

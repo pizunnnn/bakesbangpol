@@ -76,7 +76,7 @@
                             </div>
                             <div>
                                 <div class="stat-value text-white fw-bold" style="font-size: 1.85rem; line-height: 1.1;"><?php echo e(number_format((int)$statistics['active_assets'], 0, ',', '.')); ?></div>
-                                <div class="stat-label fw-semibold text-white" style="font-size: 0.9rem; opacity: 0.95;">Aktif / Tersedia</div>
+                                <div class="stat-label fw-semibold text-white" style="font-size: 0.9rem; opacity: 0.95;">Tersedia</div>
                             </div>
                         </div>
                     </a>
@@ -193,7 +193,7 @@
                                         <td class="py-3 fw-semibold text-dark" style="font-size: 0.95rem;"><?php echo e($asset->jumlah_unit ?? 1); ?> Unit</td>
                                         <td class="text-end pe-4 py-3">
                                             <span class="badge rounded-pill px-3 py-2 font-semibold" style="background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 0.82rem;">
-                                                <?php echo e($asset->status ?? 'Aktif'); ?>
+                                                <?php echo e($asset->status ?? 'Tersedia'); ?>
 
                                             </span>
                                         </td>

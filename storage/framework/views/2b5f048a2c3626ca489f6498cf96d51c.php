@@ -89,11 +89,11 @@
                 <div class="col-md-3">
                     <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="">Semua Status</option>
-                        <option value="Aktif" <?php echo e(($status ?? '') === 'Aktif' ? 'selected' : ''); ?>>Aktif</option>
                         <option value="Tersedia" <?php echo e(($status ?? '') === 'Tersedia' ? 'selected' : ''); ?>>Tersedia</option>
                         <option value="Dipinjam" <?php echo e(($status ?? '') === 'Dipinjam' ? 'selected' : ''); ?>>Dipinjam</option>
                         <option value="Dalam Perbaikan" <?php echo e(($status ?? '') === 'Dalam Perbaikan' ? 'selected' : ''); ?>>Dalam Perbaikan</option>
-                        <option value="Rusak" <?php echo e(($status ?? '') === 'Rusak' ? 'selected' : ''); ?>>Rusak</option>
+                        <option value="Rusak Ringan" <?php echo e(($status ?? '') === 'Rusak Ringan' ? 'selected' : ''); ?>>Rusak Ringan</option>
+                        <option value="Rusak Berat" <?php echo e(($status ?? '') === 'Rusak Berat' ? 'selected' : ''); ?>>Rusak Berat</option>
                         <option value="eligible_10_years" <?php echo e(($status ?? '') === 'eligible_10_years' ? 'selected' : ''); ?>>Umur >= 10 Tahun (Potensi Penghapusan)</option>
                         <option value="Dapat Dihapus" <?php echo e(($status ?? '') === 'Dapat Dihapus' ? 'selected' : ''); ?>>Diverifikasi: Dapat Dihapus</option>
                     </select>
@@ -155,10 +155,16 @@
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if($asset->status === 'Aktif' || $asset->status === 'Tersedia' || $asset->status === 'Disetujui'): ?>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle">Aktif</span>
+                                    <?php if($asset->status === 'Tersedia' || $asset->status === 'Aktif' || $asset->status === 'Disetujui'): ?>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">Tersedia</span>
+                                    <?php elseif($asset->status === 'Dipinjam'): ?>
+                                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">Dipinjam</span>
                                     <?php elseif($asset->status === 'Dalam Perbaikan'): ?>
                                         <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Dalam Perbaikan</span>
+                                    <?php elseif($asset->status === 'Rusak Ringan' || $asset->status === 'RR'): ?>
+                                        <span class="badge bg-warning text-dark border border-warning-subtle">Rusak Ringan</span>
+                                    <?php elseif($asset->status === 'Rusak Berat' || $asset->status === 'RB' || $asset->status === 'Rusak'): ?>
+                                        <span class="badge bg-danger text-white">Rusak Berat</span>
                                     <?php elseif($asset->status === 'Dapat Dihapus'): ?>
                                         <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Dapat Dihapus</span>
                                     <?php elseif($asset->status === 'Sudah Dihapus'): ?>

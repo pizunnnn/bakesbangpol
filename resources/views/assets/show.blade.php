@@ -72,10 +72,16 @@
                             </p>
                         </div>
                         <div>
-                            @if ($asset->status === 'Aktif' || $asset->status === 'Tersedia' || $asset->status === 'Disetujui')
-                                <span class="badge bg-success-subtle text-success fs-6 border border-success-subtle px-3 py-2">Aktif / Tersedia</span>
+                            @if ($asset->status === 'Tersedia' || $asset->status === 'Aktif' || $asset->status === 'Disetujui')
+                                <span class="badge bg-success-subtle text-success fs-6 border border-success-subtle px-3 py-2">Tersedia</span>
+                            @elseif ($asset->status === 'Dipinjam')
+                                <span class="badge bg-info-subtle text-info-emphasis fs-6 border border-info-subtle px-3 py-2">Dipinjam</span>
                             @elseif ($asset->status === 'Dalam Perbaikan')
                                 <span class="badge bg-warning-subtle text-warning-emphasis fs-6 border border-warning-subtle px-3 py-2">Dalam Perbaikan</span>
+                            @elseif ($asset->status === 'Rusak Ringan' || $asset->status === 'RR')
+                                <span class="badge bg-warning text-dark fs-6 border border-warning-subtle px-3 py-2">Rusak Ringan</span>
+                            @elseif ($asset->status === 'Rusak Berat' || $asset->status === 'RB' || $asset->status === 'Rusak')
+                                <span class="badge bg-danger text-white fs-6 px-3 py-2">Rusak Berat</span>
                             @elseif ($asset->status === 'Dapat Dihapus')
                                 <span class="badge bg-danger-subtle text-danger fs-6 border border-danger-subtle px-3 py-2">Dapat Dihapus</span>
                             @elseif ($asset->status === 'Sudah Dihapus')
@@ -343,7 +349,7 @@
                             <select name="status" class="form-select" required>
                                 <option value="Dapat Dihapus" {{ $asset->status == 'Dapat Dihapus' ? 'selected' : '' }}>Dapat Dihapus (Siap Diproses)</option>
                                 <option value="Sudah Dihapus" {{ $asset->status == 'Sudah Dihapus' ? 'selected' : '' }}>Sudah Dihapus (Selesai Penghapusan)</option>
-                                <option value="Aktif" {{ $asset->status == 'Aktif' ? 'selected' : '' }}>Tetap Aktif / Diperpanjang</option>
+                                <option value="Tersedia" {{ in_array($asset->status, ['Tersedia', 'Aktif']) ? 'selected' : '' }}>Tetap Digunakan / Tersedia</option>
                             </select>
                         </div>
                         <div class="mb-3">

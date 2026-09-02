@@ -4,18 +4,22 @@
     <meta charset="UTF-8">
     <title>Laporan Rincian Data Aset Bakesbangpol</title>
     <style>
+        @page {
+            margin: 12mm 10mm 12mm 10mm;
+            size: a4 landscape;
+        }
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 9px;
-            color: #1e293b;
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 8.5px;
+            color: #0f172a;
             margin: 0;
             padding: 0;
         }
         .header-table {
             width: 100%;
-            border-bottom: 3px double #000;
-            padding-bottom: 8px;
-            margin-bottom: 10px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
         }
         .header-title {
             text-align: center;
@@ -33,12 +37,12 @@
         }
         .header-title p {
             margin: 0;
-            font-size: 8.5px;
+            font-size: 8px;
             color: #475569;
         }
         .doc-title {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .doc-title h4 {
             margin: 0;
@@ -48,38 +52,44 @@
         }
         .doc-title p {
             margin: 2px 0 0 0;
-            font-size: 8.5px;
-            color: #64748b;
+            font-size: 8px;
+            color: #475569;
         }
         .content-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            table-layout: fixed;
         }
         .content-table th, .content-table td {
             border: 1px solid #94a3b8;
-            padding: 4px 5px;
-            text-align: left;
+            padding: 3.5px 4px;
+            font-size: 8px;
+            word-wrap: break-word;
         }
         .content-table th {
             background-color: #f1f5f9;
             font-weight: bold;
             text-align: center;
             text-transform: uppercase;
-            font-size: 8.5px;
             color: #0f172a;
+        }
+        .content-table tr {
+            page-break-inside: avoid;
         }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
         .fw-bold { font-weight: bold; }
         .footer-table {
             width: 100%;
-            margin-top: 15px;
+            margin-top: 10px;
+            page-break-inside: avoid;
         }
         .signature-box {
             width: 220px;
             float: right;
             text-align: center;
+            font-size: 8.5px;
         }
     </style>
 </head>

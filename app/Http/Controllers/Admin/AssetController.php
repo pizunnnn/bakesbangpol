@@ -244,11 +244,14 @@ class AssetController extends Controller
     public function verifyDisposal(Request $request, Asset $asset): RedirectResponse
     {
         $validated = $request->validate([
-            'status' => ['required', 'string', 'in:Dapat Dihapus,Sudah Dihapus,Aktif'],
+            'status' => ['required', 'string', 'in:Dapat Dihapus,Sudah Dihapus,Tersedia,Aktif'],
             'notes' => ['nullable', 'string'],
         ]);
 
         $newStatus = $validated['status'];
+        if ($newStatus === 'Aktif') {
+            $newStatus = 'Tersedia';
+        }
         $asset->update(['status' => $newStatus]);
 
         $asset->logHistory(
@@ -309,7 +312,7 @@ class AssetController extends Controller
                     'keadaan' => 'B',
                     'condition' => 'Baik',
                     'jumlah_unit' => 1,
-                    'status' => 'Aktif',
+                    'status' => 'Tersedia',
                     'bidang' => $bidang,
                     'asset_code' => $assetCode,
                 ]);
@@ -349,6 +352,9 @@ class AssetController extends Controller
      */
     public function exportExcel(Request $request): StreamedResponse
     {
+        @ini_set('memory_limit', '512M');
+        @set_time_limit(300);
+
         $search = $request->query('search');
         $status = $request->query('status');
         $bidang = $request->query('bidang');
@@ -494,7 +500,7 @@ class AssetController extends Controller
                 ];
             }
 
-            $statuses = ['Aktif', 'Tersedia', 'Dipinjam', 'Dalam Perbaikan', 'Rusak', 'Dapat Dihapus'];
+            $statuses = ['Tersedia', 'Dipinjam', 'Dalam Perbaikan', 'Rusak Ringan', 'Rusak Berat', 'Dapat Dihapus'];
             $byStatus = [];
             foreach ($statuses as $st) {
                 $sQuery = Asset::where('status', $st);
@@ -572,6 +578,9 @@ class AssetController extends Controller
      */
     public function exportPdf(Request $request)
     {
+        @ini_set('memory_limit', '512M');
+        @set_time_limit(300);
+
         $mode = $request->query('mode', 'rekap');
         $isDownload = $request->query('download') === '1';
         $search = $request->query('search');
@@ -618,7 +627,7 @@ class AssetController extends Controller
             }
 
             // Rekap per Status
-            $statuses = ['Aktif', 'Tersedia', 'Dipinjam', 'Dalam Perbaikan', 'Rusak', 'Dapat Dihapus'];
+            $statuses = ['Tersedia', 'Dipinjam', 'Dalam Perbaikan', 'Rusak Ringan', 'Rusak Berat', 'Dapat Dihapus'];
             $byStatus = [];
             foreach ($statuses as $st) {
                 $sQuery = Asset::where('status', $st);

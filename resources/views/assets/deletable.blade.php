@@ -85,7 +85,7 @@
                         <option value="">Semua Status</option>
                         <option value="Dapat Dihapus" {{ ($status ?? '') === 'Dapat Dihapus' ? 'selected' : '' }}>Dapat Dihapus</option>
                         <option value="Sudah Dihapus" {{ ($status ?? '') === 'Sudah Dihapus' ? 'selected' : '' }}>Sudah Dihapus</option>
-                        <option value="Aktif" {{ ($status ?? '') === 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                        <option value="Tersedia" {{ ($status ?? '') === 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
                     </select>
                 </div>
                 <div class="col-md-3 d-flex gap-1">
@@ -178,7 +178,7 @@
                                                             <select name="status" class="form-select" required>
                                                                 <option value="Dapat Dihapus" {{ $asset->status == 'Dapat Dihapus' ? 'selected' : '' }}>Dapat Dihapus (Siap Diproses)</option>
                                                                 <option value="Sudah Dihapus" {{ $asset->status == 'Sudah Dihapus' ? 'selected' : '' }}>Sudah Dihapus (Selesai Penghapusan)</option>
-                                                                <option value="Aktif" {{ $asset->status == 'Aktif' ? 'selected' : '' }}>Tetap Aktif / Diperpanjang</option>
+                                                                <option value="Tersedia" {{ in_array($asset->status, ['Tersedia', 'Aktif']) ? 'selected' : '' }}>Tetap Digunakan / Tersedia</option>
                                                             </select>
                                                         </div>
                                                         <div class="mb-3">

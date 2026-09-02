@@ -13,6 +13,9 @@
                     <p class="text-muted small mb-0">Kelola data pegawai PNS, PPPK, dan PPPK Paruh Waktu Bakesbangpol.</p>
                 </div>
                 <div class="d-flex gap-2 flex-wrap align-items-center">
+                    <a href="<?php echo e(route('employees.payroll-report')); ?>" target="_blank" class="btn btn-sm btn-outline-success d-inline-flex align-items-center">
+                        <i class="bi bi-people me-1"></i>Daftar Penerima Tunjangan
+                    </a>
                     <button type="button" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#pdfExportModal">
                         <i class="bi bi-file-earmark-pdf me-1"></i>Cetak PDF
                     </button>
@@ -101,7 +104,7 @@
                             <th>Jabatan</th>
                             <th>Masa Kerja</th>
                             <th>Status / Kelayakan</th>
-                            <th class="text-center" style="width: 140px;">Aksi</th>
+                            <th class="text-center" style="width: 140px;">Detail</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -27,7 +27,7 @@ class DashboardController extends Controller
       'total_assets' => Asset::query()->count(),
       'active_assets' => Asset::query()->whereIn('status', ['Aktif', 'Tersedia', 'Dipinjam', 'Disetujui'])->count(),
       'in_repair_assets' => Asset::query()->where('status', 'Dalam Perbaikan')->count(),
-      'damaged_assets' => Asset::query()->whereIn('status', ['Rusak', 'RB', 'RR'])->count(),
+      'damaged_assets' => Asset::query()->whereIn('status', ['Rusak', 'RB', 'RR', 'Rusak Berat', 'Rusak Ringan'])->count(),
       'aged_assets' => Asset::query()->where(function ($q) use ($cutoffDate, $cutoffYear) {
         $q->where('purchase_date', '<=', $cutoffDate)
           ->orWhere('tahun_perolehan', '<=', $cutoffYear);

@@ -143,11 +143,11 @@
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-semibold text-muted small">Status Aset</label>
                         <select name="status" class="form-select @error('status') is-invalid @enderror">
-                            <option value="Aktif" {{ old('status', $asset->status) == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                            <option value="Tersedia" {{ old('status', $asset->status) == 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
+                            <option value="Tersedia" {{ in_array(old('status', $asset->status), ['Tersedia', 'Aktif']) ? 'selected' : '' }}>Tersedia</option>
                             <option value="Dipinjam" {{ old('status', $asset->status) == 'Dipinjam' ? 'selected' : '' }}>Dipinjam</option>
                             <option value="Dalam Perbaikan" {{ old('status', $asset->status) == 'Dalam Perbaikan' ? 'selected' : '' }}>Dalam Perbaikan</option>
-                            <option value="Rusak" {{ old('status', $asset->status) == 'Rusak' ? 'selected' : '' }}>Rusak</option>
+                            <option value="Rusak Ringan" {{ in_array(old('status', $asset->status), ['Rusak Ringan', 'RR']) ? 'selected' : '' }}>Rusak Ringan</option>
+                            <option value="Rusak Berat" {{ in_array(old('status', $asset->status), ['Rusak Berat', 'RB', 'Rusak']) ? 'selected' : '' }}>Rusak Berat</option>
                             <option value="Dapat Dihapus" {{ old('status', $asset->status) == 'Dapat Dihapus' ? 'selected' : '' }}>Dapat Dihapus</option>
                             <option value="Sudah Dihapus" {{ old('status', $asset->status) == 'Sudah Dihapus' ? 'selected' : '' }}>Sudah Dihapus</option>
                         </select>

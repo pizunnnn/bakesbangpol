@@ -85,6 +85,7 @@ class DatabaseSeeder extends Seeder
       AssetCategorySeeder::class,
       AssetSeeder::class,
       EmployeeSeeder::class,
+      EmployeeAllowanceSeeder::class,
     ]);
   }
 }

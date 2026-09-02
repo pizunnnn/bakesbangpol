@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Employee extends Model
 {
@@ -90,6 +91,16 @@ class Employee extends Model
   public function retirements(): HasMany
   {
     return $this->hasMany(EmployeeRetirement::class)->orderBy('tanggal_pensiun', 'desc');
+  }
+
+  public function allowance(): HasOne
+  {
+    return $this->hasOne(EmployeeAllowance::class)->latestOfMany();
+  }
+
+  public function allowances(): HasMany
+  {
+    return $this->hasMany(EmployeeAllowance::class)->orderBy('id', 'desc');
   }
 
   // ==================== 1. KALKULASI MASA KERJA ====================
