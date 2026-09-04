@@ -19,8 +19,14 @@
                         ?->hasAnyRole(['Administrator', 'HR / Kepegawaian']))
                     <li class="nav-item">
                         <a href="{{ route('employees.index') }}"
-                            class="nav-link {{ request()->routeIs('employees.*') ? 'active' : '' }}">
+                            class="nav-link {{ (request()->routeIs('employees.*') && !request()->routeIs('employees.promotions*')) ? 'active' : '' }}">
                             <i class="bi bi-people me-1"></i>Pegawai
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('employees.promotions') }}"
+                            class="nav-link {{ request()->routeIs('employees.promotions*') ? 'active' : '' }}">
+                            <i class="bi bi-award me-1"></i>Kenaikan Pangkat
                         </a>
                     </li>
                     <li class="nav-item">
@@ -50,6 +56,56 @@
                 @endif
             </ul>
             <ul class="navbar-nav ms-auto align-items-lg-center">
+                @if (auth()->user()?->hasAnyRole(['Administrator', 'HR / Kepegawaian']))
+                    @php
+                        $navPromotionList = \App\Models\Employee::where('employment_status', '!=', 'inactive')
+                            ->with('rankHistories')
+                            ->get()
+                            ->filter(fn($e) => $e->is_eligible_kenaikan_pangkat || ($e->tanggal_kenaikan_pangkat_berikutnya && $e->tanggal_kenaikan_pangkat_berikutnya->format('Y-m') === \Carbon\Carbon::now()->format('Y-m')));
+                        $navPromotionCount = $navPromotionList->count();
+                        $navPromotionCandidates = $navPromotionList->take(5);
+                    @endphp
+                    <!-- NOTIFICATION BELL DROPDOWN -->
+                    <li class="nav-item dropdown me-2">
+                        <a class="nav-link dropdown-toggle position-relative text-white py-1 px-2" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notifikasi Kenaikan Pangkat">
+                            <i class="bi bi-bell-fill fs-5"></i>
+                            @if($navPromotionCount > 0)
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 9px;">
+                                    {{ $navPromotionCount }}
+                                </span>
+                            @endif
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-2 mt-2" aria-labelledby="notificationDropdown" style="width: 320px;">
+                            <li class="dropdown-header d-flex justify-content-between align-items-center py-2 px-2 border-bottom">
+                                <span class="fw-bold text-dark"><i class="bi bi-award-fill text-warning me-1"></i>Notifikasi Kenaikan Pangkat</span>
+                                <span class="badge bg-danger">{{ $navPromotionCount }} Pegawai</span>
+                            </li>
+                            @forelse($navPromotionCandidates as $pCandidate)
+                                <li>
+                                    <a class="dropdown-item py-2 px-2 border-bottom rounded-2" href="{{ route('employees.show', ['employee' => $pCandidate, 'tab' => 'rank']) }}">
+                                        <div class="fw-bold text-dark small text-truncate">{{ $pCandidate->full_name }}</div>
+                                        <div class="text-muted small" style="font-size: 11px;">
+                                            {{ $pCandidate->pangkat_golongan ?: '-' }} ➔ <span class="text-primary fw-semibold">{{ $pCandidate->pangkat_berikutnya_estimasi }}</span>
+                                        </div>
+                                        <div class="text-secondary" style="font-size: 10px;">
+                                            <i class="bi bi-clock me-1"></i>Jatuh tempo: {{ $pCandidate->tanggal_kenaikan_pangkat_berikutnya ? $pCandidate->tanggal_kenaikan_pangkat_berikutnya->format('d/m/Y') : '-' }}
+                                        </div>
+                                    </a>
+                                </li>
+                            @empty
+                                <li class="p-3 text-center text-muted small">
+                                    <i class="bi bi-check2-circle text-success fs-4 d-block mb-1"></i>
+                                    Tidak ada jadwal kenaikan pangkat bulan ini.
+                                </li>
+                            @endforelse
+                            <li class="pt-2 px-1 text-center">
+                                <a href="{{ route('employees.promotions') }}" class="btn btn-sm btn-primary w-100 py-1 fw-semibold" style="font-size: 11.5px;">
+                                    <i class="bi bi-calendar3 me-1"></i>Lihat Semua Monitoring Bulanan
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
                 <li class="nav-item">
                     <span class="navbar-text text-white me-2">
                         <i class="bi bi-person-circle me-1"></i>{{ auth()->user()->name ?? 'Guest' }}

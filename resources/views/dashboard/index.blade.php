@@ -260,6 +260,26 @@
                 </div>
             </div>
 
+            {{-- Promotion Notification Alert / Card --}}
+            @if(($statistics['promotions_eligible_count'] ?? 0) > 0)
+                <div class="alert alert-warning border-warning-subtle shadow-sm rounded-4 d-flex justify-content-between align-items-center p-3 mb-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-warning text-dark rounded-circle p-2 d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px;">
+                            <i class="bi bi-award-fill fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0 text-dark">
+                                {{ $statistics['promotions_eligible_count'] }} Pegawai Siap Naik Pangkat Bulan Ini
+                            </h6>
+                            <small class="text-secondary">Jatuh tempo kenaikan pangkat periode {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}</small>
+                        </div>
+                    </div>
+                    <a href="{{ route('employees.promotions') }}" class="btn btn-sm btn-dark rounded-pill fw-bold px-3 py-1">
+                        Monitoring <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            @endif
+
             {{-- Grafik Pegawai per Unit Kerja --}}
             <div class="card shadow-sm border-0 rounded-4 mb-4">
                 <div class="card-header bg-white border-0 pt-3 pb-0">

@@ -46,6 +46,7 @@ class DashboardController extends Controller
         ->orWhere('nama_barang', 'like', '%hiace%')
         ->count(),
       'vehicles_in_repair' => VehicleRepair::query()->whereIn('status', ['Diajukan', 'Dalam Perbaikan'])->count(),
+      'promotions_eligible_count' => Employee::where('employment_status', '!=', 'inactive')->with('rankHistories')->get()->filter(fn($e) => $e->is_eligible_kenaikan_pangkat || ($e->tanggal_kenaikan_pangkat_berikutnya && $e->tanggal_kenaikan_pangkat_berikutnya->format('Y-m') === Carbon::now()->format('Y-m')))->count(),
     ];
 
     $employeesByDepartment = Department::query()

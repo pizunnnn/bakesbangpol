@@ -176,6 +176,47 @@ class Employee extends Model
     return Carbon::now()->startOfDay()->gte($nextRank->startOfDay());
   }
 
+  public function getPangkatTerakhirTmtAttribute(): ?Carbon
+  {
+    $latestRank = $this->rankHistories()->first();
+    return $latestRank ? $latestRank->tanggal_kenaikan : $this->join_date;
+  }
+
+  public function getPangkatBerikutnyaEstimasiAttribute(): string
+  {
+    $current = trim((string)$this->pangkat_golongan);
+    $pangkatHierarchy = [
+      'IV/e' => 'Pangkat Tertinggi (IV/e)',
+      'IV/d' => 'Pembina Utama (IV/e)',
+      'IV/c' => 'Pembina Utama Madya (IV/d)',
+      'IV/b' => 'Pembina Utama Muda (IV/c)',
+      'IV/a' => 'Pembina Tk. I (IV/b)',
+      'III/d' => 'Pembina (IV/a)',
+      'III/c' => 'Penata Tk. I (III/d)',
+      'III/b' => 'Penata (III/c)',
+      'III/a' => 'Penata Muda Tk. I (III/b)',
+      'II/d' => 'Penata Muda (III/a)',
+      'II/c' => 'Pengatur Tk. I (II/d)',
+      'II/b' => 'Pengatur (II/c)',
+      'II/a' => 'Pengatur Muda Tk. I (II/b)',
+      'I/d' => 'Pengatur Muda (II/a)',
+      'I/c' => 'Juru (I/d)',
+      'I/b' => 'Juru Muda Tk. I (I/c)',
+      'I/a' => 'Juru Muda (I/b)',
+      'IX' => 'PPPK Golongan X',
+      'X' => 'PPPK Golongan XI',
+      'VII' => 'PPPK Golongan VIII',
+    ];
+
+    foreach ($pangkatHierarchy as $code => $target) {
+      if (str_contains($current, $code)) {
+        return $target;
+      }
+    }
+
+    return 'Pangkat Jenjang Berikutnya';
+  }
+
   // ==================== 4. OTOMATISASI PENSIUN (58 TAHUN) ====================
   public function getUsiaAttribute(): int
   {
